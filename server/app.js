@@ -7,6 +7,9 @@ const { generalLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 
+// ===== Trust Proxy (for Render.com, localtunnel, etc.) =====
+app.set('trust proxy', 1);
+
 // ===== Security =====
 app.use(helmet({
   contentSecurityPolicy: false,
@@ -38,6 +41,7 @@ app.use('/api/settings', require('./routes/settings'));
 app.use('/api/logs', require('./routes/logs'));
 app.use('/api/backup', require('./routes/backup'));
 app.use('/api/webhook/line', require('./routes/lineWebhook'));
+app.use('/api/line-webhook', require('./routes/lineWebhook'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/health', require('./routes/health'));
 

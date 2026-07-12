@@ -12,7 +12,6 @@ const certificateSchema = new mongoose.Schema({
   issuedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
 
-certificateSchema.index({ certificateNumber: 1 });
 certificateSchema.index({ donationId: 1 });
 
 module.exports = mongoose.model('Certificate', certificateSchema);
