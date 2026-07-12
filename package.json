@@ -1,0 +1,47 @@
+{
+  "name": "donation-bok2569",
+  "version": "1.0.0",
+  "description": "ระบบแจ้งยอดบริจาคผ้าป่าสามัคคีเพื่อการศึกษา โรงเรียนบ้านบกหนองทันน้ำ ประจำปี 2569",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js",
+    "seed": "node server/seeds/seed.js",
+    "backup": "node server/services/backupService.js"
+  },
+  "keywords": [
+    "donation",
+    "realtime",
+    "school",
+    "thailand"
+  ],
+  "author": "BOK2569 Admin",
+  "license": "MIT",
+  "dependencies": {
+    "@line/bot-sdk": "^9.6.0",
+    "axios": "^1.7.9",
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.5.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "exceljs": "^4.4.0",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "moment-timezone": "^0.5.46",
+    "mongoose": "^8.9.5",
+    "multer": "^1.4.5-lts.1",
+    "node-cron": "^3.0.3",
+    "puppeteer": "^23.11.1",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

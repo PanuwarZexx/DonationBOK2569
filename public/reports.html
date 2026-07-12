@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>รายงาน — BOK2569</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link href="/css/main.css" rel="stylesheet">
+  <link href="/css/dashboard.css" rel="stylesheet">
+  <link href="/css/responsive.css" rel="stylesheet">
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar-glass" id="sidebar">
+    <div class="sidebar-header"><img src="/img/logo_standard.png" style="height: 36px; width: 36px; object-fit: contain; border-radius: 50%; margin-right: 8px;"><div class="sidebar-title">บริจาค BOK2569<small>ระบบจัดการ</small></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">เมนูหลัก</div>
+      <a href="/dashboard.html" class="nav-link-custom"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="/donations.html" class="nav-link-custom"><i class="fas fa-list"></i> รายการบริจาค</a>
+      <a href="/add-donation.html" class="nav-link-custom"><i class="fas fa-plus-circle"></i> เพิ่มรายการ</a>
+      <a href="/search.html" class="nav-link-custom"><i class="fas fa-search"></i> ค้นหา</a>
+      <div class="nav-section-title">รายงาน</div>
+      <a href="/reports.html" class="nav-link-custom active"><i class="fas fa-chart-pie"></i> รายงาน</a>
+      <a href="/certificates.html" class="nav-link-custom"><i class="fas fa-certificate"></i> ใบอนุโมทนาบัตร</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/" class="nav-link-custom"><i class="fas fa-globe"></i> ดูหน้าเว็บ</a>
+      <a href="#" class="nav-link-custom" onclick="logout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
+    </div>
+  </aside>
+
+  <div class="content-with-sidebar">
+    <div class="admin-topbar">
+      <h5 class="mb-0"><i class="fas fa-chart-pie text-gold"></i> รายงานยอดบริจาค</h5>
+    </div>
+    <div class="admin-content">
+      <div class="row g-4">
+        <!-- Reports Controls -->
+        <div class="col-md-4">
+          <div class="glass-card">
+            <h5>ตัวเลือกรายงาน</h5>
+            <hr style="border-color:var(--color-border)">
+            <form id="report-form" class="row g-3">
+              <div class="col-12">
+                <label>ประเภทรายงาน</label>
+                <select class="form-select-dark" id="report-type">
+                  <option value="daily">รายงานยอดบริจาครายวัน</option>
+                  <option value="monthly">รายงานยอดบริจาครายเดือน</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn-gold w-100"><i class="fas fa-eye"></i> แสดงพรีวิว</button>
+              </div>
+            </form>
+            <div class="mt-4">
+              <h5>ดาวน์โหลดรายงานรวม</h5>
+              <div class="d-grid gap-2 mt-3">
+                <button class="btn-success-soft" id="btn-export-excel"><i class="fas fa-file-excel"></i> ส่งออกเป็น Excel (.xlsx)</button>
+                <button class="btn-info-soft" id="btn-export-csv"><i class="fas fa-file-csv"></i> ส่งออกเป็น CSV (.csv)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reports Preview -->
+        <div class="col-md-8">
+          <div class="glass-card">
+            <h5>พรีวิวรายงาน</h5>
+            <hr style="border-color:var(--color-border)">
+            <div class="table-responsive">
+              <table class="table-dark-custom">
+                <thead>
+                  <tr>
+                    <th>วันที่ / เดือน</th>
+                    <th>จำนวนรายการ</th>
+                    <th class="text-end">ยอดบริจาครวม (บาท)</th>
+                  </tr>
+                </thead>
+                <tbody id="report-preview-body">
+                  <tr><td colspan="3" class="text-center" style="color:var(--color-text-muted)">กดแสดงพรีวิวเพื่อเริ่มต้น</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/utils.js"></script>
+  <script>const API_BASE = window.location.origin + '/api';</script>
+  <script src="/js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!checkAuth()) return;
+      const user = getUser();
+      if (user && user.role === 'admin') {
+        const nav = document.querySelector('.sidebar-nav');
+        if (nav) {
+          const extra = document.createElement('div');
+          extra.innerHTML = `
+            <div class="nav-section-title">ผู้ดูแลระบบ</div>
+            <a href="/users.html" class="nav-link-custom"><i class="fas fa-users-cog"></i> จัดการผู้ใช้</a>
+            <a href="/settings.html" class="nav-link-custom"><i class="fas fa-cog"></i> ตั้งค่า</a>
+            <a href="/logs.html" class="nav-link-custom"><i class="fas fa-history"></i> Log</a>
+            <a href="/backup.html" class="nav-link-custom"><i class="fas fa-database"></i> Backup</a>
+          `;
+          nav.appendChild(extra);
+        }
+      }
+
+      document.getElementById('report-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        loadReportPreview();
+      });
+
+      document.getElementById('btn-export-excel').addEventListener('click', () => {
+        window.open(`${API_BASE}/reports/excel?token=${getToken()}`, '_blank');
+      });
+
+      document.getElementById('btn-export-csv').addEventListener('click', () => {
+        window.open(`${API_BASE}/reports/csv?token=${getToken()}`, '_blank');
+      });
+    });
+
+    async function loadReportPreview() {
+      const type = document.getElementById('report-type').value;
+      const endpoint = type === 'daily' ? '/reports/daily' : '/reports/monthly';
+      try {
+        const token = getToken();
+        const res = await fetch(API_BASE + endpoint, { headers: { 'Authorization': `Bearer ${token}` } });
+        const result = await res.json();
+        if (result.success) {
+          renderPreview(result.data);
+        }
+      } catch(e) {
+        console.error(e);
+      }
+    }
+
+    function renderPreview(data) {
+      const body = document.getElementById('report-preview-body');
+      if (!data.length) {
+        body.innerHTML = '<tr><td colspan="3" class="text-center" style="color:var(--color-text-muted)">ไม่พบข้อมูลในช่วงเวลานี้</td></tr>';
+        return;
+      }
+      body.innerHTML = data.map(d => `
+        <tr>
+          <td><span class="fw-semibold">${d._id}</span></td>
+          <td>${d.count} รายการ</td>
+          <td class="text-gold font-en fw-bold text-end">${formatCurrency(d.total)} บาท</td>
+        </tr>
+      `).join('');
+    }
+  </script>
+</body>
+</html>

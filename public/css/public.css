@@ -1,0 +1,361 @@
+/* ============================================
+   PUBLIC PAGE — Layout & Styles
+   หน้าเว็บสาธารณะ
+   ============================================ */
+
+/* ----- Two-Column Layout ----- */
+.public-main {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: var(--space-xl);
+  padding: 0 var(--space-xl) var(--space-xl);
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.total-amount-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-xl) 0;
+}
+
+/* ----- Left Panel ----- */
+.left-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* Project Header */
+.project-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: var(--space-lg);
+}
+
+.project-icon {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.project-title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-gold);
+  margin-bottom: 0.1rem;
+}
+
+.project-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: 0;
+}
+
+/* ----- Total Amount Display ----- */
+.total-amount-card {
+  text-align: center;
+  padding: var(--space-3xl) var(--space-xl);
+}
+
+.total-label {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  margin-bottom: var(--space-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.total-number {
+  font-family: var(--font-en);
+  font-size: clamp(5rem, 12vw, 9rem); /* Balanced & Prominent */
+  font-weight: 900;
+  color: #c69500; /* Rich gold accent */
+  line-height: 1.0;
+  letter-spacing: -0.04em;
+  margin: 0.5rem 0;
+  text-shadow: 0 8px 24px rgba(198, 149, 0, 0.25);
+}
+
+.total-unit {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  margin-top: var(--space-sm);
+}
+
+.btn-line-custom {
+  background: #06C755;
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1.5rem;
+  font-family: var(--font-thai);
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: 0 4px 15px rgba(6, 199, 85, 0.2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  text-decoration: none;
+}
+
+.btn-line-custom:hover {
+  background: #05b04b;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(6, 199, 85, 0.3);
+}
+
+/* Progress Section */
+.progress-section {
+  margin-top: var(--space-lg);
+}
+
+/* Stats Row */
+.stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.mini-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: var(--space-md) !important;
+}
+
+.mini-stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 215, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-gold);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.mini-stat-number {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.mini-stat-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* Chart Section */
+.chart-section h5 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: var(--space-md);
+}
+
+.chart-container {
+  position: relative;
+  height: 250px;
+  width: 100%;
+}
+
+/* QR Section */
+.qr-section h5 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: var(--space-md);
+}
+
+.qr-wrapper {
+  text-align: center;
+}
+
+.qr-placeholder {
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px dashed rgba(255, 215, 0, 0.3);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-md);
+  color: var(--color-text-muted);
+  font-size: 2rem;
+}
+
+.qr-placeholder p {
+  font-size: var(--font-size-sm);
+  margin-top: 0.5rem;
+}
+
+.qr-info {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.qr-promptpay {
+  margin-top: 0.25rem;
+}
+
+/* Announcement */
+.announcement-section h5 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: var(--space-sm);
+}
+
+.announcement-section p {
+  font-size: var(--font-size-sm);
+  line-height: 1.7;
+}
+
+/* ----- Right Panel ----- */
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--navbar-height) - var(--space-xl) * 2);
+  position: sticky;
+  top: calc(var(--navbar-height) + var(--space-xl));
+}
+
+.right-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg) !important;
+  margin-bottom: var(--space-sm);
+}
+
+.right-panel-header h4 {
+  margin-bottom: 0;
+  font-size: var(--font-size-md);
+  display: flex;
+  align-items: center;
+}
+
+/* Donation List */
+#donation-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.donation-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid transparent;
+  transition: all var(--transition-base);
+}
+
+.donation-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.donation-item.new-donation-highlight {
+  border-color: rgba(255, 215, 0, 0.4);
+  background: rgba(255, 215, 0, 0.05);
+  animation: slideInRight 0.5s ease forwards, borderGlow 2s ease-in-out 3;
+}
+
+.donation-item-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.donation-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-gold);
+}
+
+.donation-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.donation-name {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.donation-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.15rem;
+}
+
+.donation-time {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.donation-item-right {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.donation-amount {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--color-gold);
+}
+
+.donation-currency {
+  font-size: var(--font-size-xs);
+  color: var(--color-gold-dark);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 992px) {
+  .public-main {
+    grid-template-columns: 1fr;
+    padding: var(--space-md);
+  }
+  .right-panel {
+    position: static;
+    height: auto;
+    max-height: 500px;
+  }
+  .total-number { font-size: clamp(6rem, 15vw, 10rem); }
+}
+
+@media (max-width: 576px) {
+  .total-number { font-size: clamp(4rem, 18vw, 6rem); }
+  .stats-row { grid-template-columns: 1fr; }
+  .qr-placeholder { width: 160px; height: 160px; }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "ระบบแจ้งยอดบริจาค โรงเรียนบ้านบกหนองทันน้ำ 2569",
+  "short_name": "บริจาค BOK2569",
+  "description": "ระบบแจ้งยอดบริจาคผ้าป่าสามัคคีเพื่อการศึกษา",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a1a",
+  "theme_color": "#FFD700",
+  "orientation": "any",
+  "icons": [
+    { "src": "/img/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/img/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

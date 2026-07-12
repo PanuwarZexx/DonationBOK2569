@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบแจ้งยอดบริจาคผ้าป่าสามัคคี โรงเรียนบ้านบกหนองทันน้ำ 2569</title>
+  <meta name="description" content="ระบบแจ้งยอดบริจาคผ้าป่าสามัคคีเพื่อการศึกษา โรงเรียนบ้านบกหนองทันน้ำ ประจำปี 2569 แสดงผลแบบ Real-time">
+  <meta name="theme-color" content="#FFD700">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/img/favicon.ico">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link href="/css/main.css?v=10" rel="stylesheet">
+  <link href="/css/public.css?v=10" rel="stylesheet">
+  <link href="/css/popup.css?v=10" rel="stylesheet">
+  <link href="/css/responsive.css?v=10" rel="stylesheet">
+</head>
+<body>
+  <!-- ===== Navbar ===== -->
+  <nav class="navbar-glass" id="main-navbar">
+    <a href="/" class="navbar-brand-custom">
+      <img src="/img/logo_standard.png" style="height: 38px; width: 38px; object-fit: contain; margin-right: 8px;">
+      <div class="brand-text">
+        บริจาคผ้าป่าสามัคคี
+        <small>โรงเรียนบ้านบกหนองทันน้ำ 2569</small>
+      </div>
+    </a>
+    <div class="navbar-actions">
+      <a href="/tv" class="btn-glass btn-icon" title="TV Mode" id="btn-tv-mode">
+        <i class="fas fa-tv"></i>
+      </a>
+      <a href="/search.html" class="btn-glass btn-icon" title="ค้นหา" id="btn-search">
+        <i class="fas fa-search"></i>
+      </a>
+      <a href="/login.html" class="btn-gold" id="btn-login">
+        <i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ
+      </a>
+    </div>
+  </nav>
+
+  <!-- ===== Total Amount Full Width ===== -->
+  <div class="total-amount-container animate-slide-in-up" style="animation-delay: 0.1s">
+    <div class="total-amount-card glass-card text-center w-100">
+      <div class="total-label">ยอดบริจาครวม</div>
+      <div class="total-number font-en" id="total-amount">0</div>
+      <div class="total-unit">บาท</div>
+      
+      <div class="mt-4" style="max-width: 480px; margin: 0 auto;">
+        <a href="https://line.me/R/ti/p/@805fzihe" target="_blank" class="btn-line-custom" id="btn-line-submit">
+          <i class="fab fa-line"></i> แจ้งยอดบริจาค & ส่งสลิปผ่าน LINE
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Main Content ===== -->
+  <main class="public-main">
+    <!-- ===== LEFT PANEL ===== -->
+    <div class="left-panel" id="left-panel">
+      <!-- Header -->
+      <div class="project-header glass-card-gold animate-fade-in">
+        <img src="/img/logo_57.jpg" style="height: 70px; width: 70px; object-fit: contain; margin-right: 12px; border-radius: 50%;">
+        <div>
+          <h1 class="project-title" id="project-name">ผ้าป่าสามัคคีเพื่อการศึกษา</h1>
+          <p class="project-subtitle" id="school-name">โรงเรียนบ้านบกหนองทันน้ำ ประจำปี <span id="project-year">2569</span></p>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-row animate-slide-in-up" style="animation-delay: 0.2s">
+        <div class="mini-stat glass-card">
+          <div class="mini-stat-icon"><i class="fas fa-users"></i></div>
+          <div class="mini-stat-info">
+            <div class="mini-stat-number font-en" id="total-donors">0</div>
+            <div class="mini-stat-label">ผู้บริจาค</div>
+          </div>
+        </div>
+        <div class="mini-stat glass-card">
+          <div class="mini-stat-icon"><i class="fas fa-calendar-day"></i></div>
+          <div class="mini-stat-info">
+            <div class="mini-stat-number font-en" id="today-amount">0</div>
+            <div class="mini-stat-label">ยอดวันนี้</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="glass-card chart-section animate-slide-in-up" style="animation-delay: 0.3s">
+        <h5><i class="fas fa-chart-bar text-gold"></i> กราฟยอดบริจาครายวัน</h5>
+        <div class="chart-container">
+          <canvas id="donation-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- QR PromptPay -->
+      <div class="glass-card-gold qr-section animate-slide-in-up" style="animation-delay: 0.4s" id="qr-section">
+        <h5><i class="fas fa-qrcode text-gold"></i> สแกนเพื่อร่วมบริจาค (e-Donation)</h5>
+        <div class="qr-wrapper text-center">
+          <div style="margin: 0 auto 1rem; width: 220px; height: 220px; background: #ffffff; padding: 10px; border-radius: var(--radius-md); box-shadow: var(--glass-shadow); display: inline-flex; align-items: center; justify-content: center;">
+            <img src="/img/promptpay_qr.jpg" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+          </div>
+          <div class="qr-info">
+            <p class="qr-bank" id="qr-bank-info" style="font-weight: 600; color: var(--color-text-primary); margin-bottom: 0.25rem;">โรงเรียนบ้านบกหนองทันน้ำ</p>
+            <p class="qr-promptpay" style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: 0;">สแกนคิวอาร์โค้ดด้านบนเพื่อร่วมบริจาค e-Donation ลดหย่อนภาษีอัตโนมัติ</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Announcement -->
+      <div class="glass-card announcement-section animate-slide-in-up" style="animation-delay: 0.5s" id="announcement-section">
+        <h5><i class="fas fa-bullhorn text-gold"></i> ข่าวประชาสัมพันธ์</h5>
+        <p id="announcement-text">ร่วมบุญผ้าป่าสามัคคีเพื่อการศึกษา โรงเรียนบ้านบกหนองทันน้ำ ประจำปี 2569</p>
+      </div>
+    </div>
+
+    <!-- ===== RIGHT PANEL ===== -->
+    <div class="right-panel" id="right-panel">
+      <div class="right-panel-header glass-card">
+        <h4>
+          <span class="live-dot"></span>
+          ผู้บริจาคล่าสุด
+        </h4>
+        <span class="badge-status badge-verified font-en" id="live-count">LIVE</span>
+      </div>
+      <div class="donation-list" id="donation-list">
+        <!-- Donations will be inserted here by JS -->
+        <div class="empty-state" id="empty-state">
+          <i class="fas fa-hand-holding-heart"></i>
+          <p>ยังไม่มีรายการบริจาค</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== Popup Container ===== -->
+  <div id="popup-container"></div>
+
+  <!-- ===== Sound Toggle ===== -->
+  <button class="sound-toggle active" id="sound-toggle" title="เปิด/ปิดเสียง">
+    <i class="fas fa-volume-up" id="sound-icon"></i>
+  </button>
+
+  <!-- ===== Footer ===== -->
+  <footer class="footer-custom">
+    <p>🙏 ระบบแจ้งยอดบริจาคผ้าป่าสามัคคีเพื่อการศึกษา</p>
+    <p>โรงเรียนบ้านบกหนองทันน้ำ ประจำปี 2569</p>
+  </footer>
+
+  <!-- ===== Scripts ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/socket.js"></script>
+  <script src="/js/popup.js"></script>
+  <script src="/js/tts.js"></script>
+  <script src="/js/donationChart.js"></script>
+  <script src="/js/pwa.js"></script>
+</body>
+</html>

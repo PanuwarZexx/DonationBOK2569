@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+    body {
+      font-family: 'Sarabun', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #ffffff;
+      color: #000000;
+    }
+    .page {
+      width: 210mm;
+      height: 297mm;
+      padding: 20mm;
+      box-sizing: border-box;
+      position: relative;
+      background: #fff;
+    }
+    /* Ornate Border (CSS only gold luxury style) */
+    .border-outer {
+      border: 4px double #FFD700;
+      height: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      position: relative;
+    }
+    .border-inner {
+      border: 1px solid #FFA500;
+      height: 100%;
+      box-sizing: border-box;
+      padding: 40px;
+      text-align: center;
+    }
+    .header-logo {
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+    .school-title {
+      font-size: 22px;
+      font-weight: bold;
+      color: #8B0000;
+      margin-bottom: 5px;
+    }
+    .cert-title {
+      font-size: 32px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #D4AF37;
+      margin: 20px 0;
+    }
+    .cert-number {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 30px;
+    }
+    .donor-section {
+      margin: 40px 0;
+    }
+    .donor-label {
+      font-size: 18px;
+    }
+    .donor-name {
+      font-size: 26px;
+      font-weight: bold;
+      color: #8B0000;
+      border-bottom: 1px dotted #8B0000;
+      display: inline-block;
+      min-width: 300px;
+      padding-bottom: 5px;
+      margin: 15px 0;
+    }
+    .amount-section {
+      font-size: 18px;
+      margin: 30px 0;
+      line-height: 1.8;
+    }
+    .amount-val {
+      font-size: 22px;
+      font-weight: bold;
+      color: #D4AF37;
+    }
+    .footer-section {
+      position: absolute;
+      bottom: 80px;
+      left: 0;
+      right: 0;
+      text-align: center;
+    }
+    .signature-line {
+      width: 250px;
+      border-bottom: 1px solid #000;
+      margin: 40px auto 10px;
+    }
+    .signature-title {
+      font-size: 14px;
+      color: #333;
+    }
+    .qr-container {
+      margin-top: 30px;
+    }
+    .qr-image {
+      width: 100px;
+      height: 100px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="border-outer">
+      <div class="border-inner">
+        <div class="header-logo">🙏</div>
+        <div class="school-title">โรงเรียนบ้านบกหนองทันน้ำ</div>
+        <div class="school-title" style="font-size: 18px; color: #333;">สำนักงานเขตพื้นที่การศึกษาประถมศึกษาศรีสะเกษ เขต 1</div>
+        
+        <div class="cert-title">ใบอนุโมทนาบัตร</div>
+        <div class="cert-number">เลขที่: <span id="cert-number-val">BOK2569-XXXXX</span></div>
+
+        <div class="donor-section">
+          <span class="donor-label">ใบอนุโมทนาบัตรฉบับนี้ให้ไว้เพื่อแสดงว่า</span><br>
+          <span class="donor-name" id="donor-name-val">คุณผู้มีจิตศรัทธา</span>
+        </div>
+
+        <div class="amount-section">
+          ได้ร่วมบริจาคเงินสมทบทุนโครงการผ้าป่าสามัคคีเพื่อการศึกษา<br>
+          เป็นจำนวนเงิน <span class="amount-val" id="amount-num-val">0.00</span> บาท (<span id="amount-text-val">ศูนย์บาทถ้วน</span>)
+        </div>
+
+        <div class="amount-section" style="font-size: 16px;">
+          ขออำนาจคุณพระศรีรัตนตรัย และสิ่งศักดิ์สิทธิ์ทั้งหลายในสากลโลก จงดลบันดาลให้ท่าน<br>
+          ประสบแต่ความสุข ความเจริญ ด้วยอายุ วรรณะ สุขะ พละ ปฏิภาณ ธนสารสมบัติ ทุกประการเทอญ
+        </div>
+
+        <div class="qr-container">
+          <img id="qr-code-img" class="qr-image" src="" alt="QR Verification"><br>
+          <span style="font-size: 10px; color: #888;">สแกนเพื่อตรวจสอบความถูกต้องของใบอนุโมทนาบัตร</span>
+        </div>
+
+        <div class="footer-section">
+          ให้ไว้ ณ วันที่ <span id="date-val"></span>
+          <div class="signature-line"></div>
+          <div class="signature-title">ผู้อำนวยการโรงเรียนบ้านบกหนองทันน้ำ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ค้นหารายการบริจาค — BOK2569</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link href="/css/main.css" rel="stylesheet">
+  <link href="/css/dashboard.css" rel="stylesheet">
+  <link href="/css/responsive.css" rel="stylesheet">
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar-glass" id="sidebar">
+    <div class="sidebar-header"><img src="/img/logo_standard.png" style="height: 36px; width: 36px; object-fit: contain; border-radius: 50%; margin-right: 8px;"><div class="sidebar-title">บริจาค BOK2569<small>ระบบจัดการ</small></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">เมนูหลัก</div>
+      <a href="/dashboard.html" class="nav-link-custom"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="/donations.html" class="nav-link-custom"><i class="fas fa-list"></i> รายการบริจาค</a>
+      <a href="/add-donation.html" class="nav-link-custom"><i class="fas fa-plus-circle"></i> เพิ่มรายการ</a>
+      <a href="/search.html" class="nav-link-custom active"><i class="fas fa-search"></i> ค้นหา</a>
+      <div class="nav-section-title">รายงาน</div>
+      <a href="/reports.html" class="nav-link-custom"><i class="fas fa-chart-pie"></i> รายงาน</a>
+      <a href="/certificates.html" class="nav-link-custom"><i class="fas fa-certificate"></i> ใบอนุโมทนาบัตร</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/" class="nav-link-custom"><i class="fas fa-globe"></i> ดูหน้าเว็บ</a>
+      <a href="#" class="nav-link-custom" onclick="logout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
+    </div>
+  </aside>
+
+  <div class="content-with-sidebar">
+    <div class="admin-topbar">
+      <h5 class="mb-0"><i class="fas fa-search text-gold"></i> ค้นหารายการบริจาค</h5>
+    </div>
+    <div class="admin-content">
+      <div class="glass-card mb-4">
+        <form id="search-form" class="row g-3">
+          <div class="col-md-4">
+            <label>ชื่อผู้บริจาค</label>
+            <input type="text" class="form-control-dark" id="search-query" placeholder="ระบุชื่อเพื่อค้นหา...">
+          </div>
+          <div class="col-md-3">
+            <label>ตำบล</label>
+            <input type="text" class="form-control-dark" id="search-subdistrict" placeholder="ตำบล">
+          </div>
+          <div class="col-md-3">
+            <label>หมู่บ้าน</label>
+            <input type="text" class="form-control-dark" id="search-village" placeholder="หมู่บ้าน">
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn-gold w-100"><i class="fas fa-search"></i> ค้นหา</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="glass-card">
+        <div class="table-responsive">
+          <table class="table-dark-custom">
+            <thead>
+              <tr>
+                <th>ชื่อผู้บริจาค</th>
+                <th>จำนวนเงิน</th>
+                <th>ช่องทาง</th>
+                <th>วันที่เวลา</th>
+                <th>ที่อยู่</th>
+              </tr>
+            </thead>
+            <tbody id="search-results-body">
+              <tr><td colspan="5" class="text-center" style="color:var(--color-text-muted)">กรุณาระบุคำค้นหา</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="search-pagination" class="pagination-custom"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/utils.js"></script>
+  <script>const API_BASE = window.location.origin + '/api';</script>
+  <script src="/js/auth.js"></script>
+  <script>
+    let searchPage = 1;
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check auth but do not reject non-staff (public search is allowed too)
+      const user = getUser();
+      if (user && user.role === 'admin') {
+        const nav = document.querySelector('.sidebar-nav');
+        if (nav) {
+          const extra = document.createElement('div');
+          extra.innerHTML = `
+            <div class="nav-section-title">ผู้ดูแลระบบ</div>
+            <a href="/users.html" class="nav-link-custom"><i class="fas fa-users-cog"></i> จัดการผู้ใช้</a>
+            <a href="/settings.html" class="nav-link-custom"><i class="fas fa-cog"></i> ตั้งค่า</a>
+            <a href="/logs.html" class="nav-link-custom"><i class="fas fa-history"></i> Log</a>
+            <a href="/backup.html" class="nav-link-custom"><i class="fas fa-database"></i> Backup</a>
+          `;
+          nav.appendChild(extra);
+        }
+      }
+
+      document.getElementById('search-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        searchPage = 1;
+        doSearch();
+      });
+    });
+
+    async function doSearch() {
+      const q = document.getElementById('search-query').value;
+      const sub = document.getElementById('search-subdistrict').value;
+      const vil = document.getElementById('search-village').value;
+
+      let query = `?page=${searchPage}&limit=20`;
+      if (q) query += `&q=${q}`;
+      if (sub) query += `&subDistrict=${sub}`;
+      if (vil) query += `&village=${vil}`;
+
+      try {
+        const res = await fetch(`${API_BASE}/search${query}`);
+        const result = await res.json();
+        if (result.success) {
+          renderSearchResults(result.data);
+          renderSearchPagination(result.pagination);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function renderSearchResults(data) {
+      const body = document.getElementById('search-results-body');
+      if (!data.length) {
+        body.innerHTML = '<tr><td colspan="5" class="text-center" style="color:var(--color-text-muted)">ไม่พบข้อมูลการค้นหา</td></tr>';
+        return;
+      }
+      body.innerHTML = data.map(d => `
+        <tr>
+          <td><span class="fw-semibold">${d.donorName}</span></td>
+          <td class="text-gold font-en fw-bold">${formatCurrency(d.amount)} บาท</td>
+          <td>${getChannelBadge(d.channel)}</td>
+          <td class="font-en">${formatDate(d.createdAt)} ${formatTime(d.createdAt)}</td>
+          <td>ม.${d.village || '-'} ต.${d.subDistrict || '-'}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderSearchPagination(p) {
+      const pag = document.getElementById('search-pagination');
+      if (p.pages <= 1) { pag.innerHTML = ''; return; }
+      let html = '';
+      for (let i = 1; i <= p.pages; i++) {
+        html += `<button class="page-btn ${i === p.page ? 'active' : ''}" onclick="changeSearchPage(${i})">${i}</button>`;
+      }
+      pag.innerHTML = html;
+    }
+
+    function changeSearchPage(page) {
+      searchPage = page;
+      doSearch();
+    }
+  </script>
+</body>
+</html>

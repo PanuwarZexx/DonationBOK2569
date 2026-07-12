@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>จัดการรายการบริจาค — BOK2569</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link href="/css/main.css" rel="stylesheet">
+  <link href="/css/dashboard.css" rel="stylesheet">
+  <link href="/css/responsive.css" rel="stylesheet">
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar-glass" id="sidebar">
+    <div class="sidebar-header"><img src="/img/logo_standard.png" style="height: 36px; width: 36px; object-fit: contain; border-radius: 50%; margin-right: 8px;"><div class="sidebar-title">บริจาค BOK2569<small>ระบบจัดการ</small></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">เมนูหลัก</div>
+      <a href="/dashboard.html" class="nav-link-custom"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="/donations.html" class="nav-link-custom active"><i class="fas fa-list"></i> รายการบริจาค</a>
+      <a href="/add-donation.html" class="nav-link-custom"><i class="fas fa-plus-circle"></i> เพิ่มรายการ</a>
+      <a href="/search.html" class="nav-link-custom"><i class="fas fa-search"></i> ค้นหา</a>
+      <div class="nav-section-title">รายงาน</div>
+      <a href="/reports.html" class="nav-link-custom"><i class="fas fa-chart-pie"></i> รายงาน</a>
+      <a href="/certificates.html" class="nav-link-custom"><i class="fas fa-certificate"></i> ใบอนุโมทนาบัตร</a>
+      <div class="nav-section-title admin-only-title" style="display:none">ผู้ดูแลระบบ</div>
+      <a href="/users.html" class="nav-link-custom admin-only" style="display:none"><i class="fas fa-users-cog"></i> จัดการผู้ใช้</a>
+      <a href="/settings.html" class="nav-link-custom admin-only" style="display:none"><i class="fas fa-cog"></i> ตั้งค่า</a>
+      <a href="/logs.html" class="nav-link-custom admin-only" style="display:none"><i class="fas fa-history"></i> Log</a>
+      <a href="/backup.html" class="nav-link-custom admin-only" style="display:none"><i class="fas fa-database"></i> Backup</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/" class="nav-link-custom"><i class="fas fa-globe"></i> ดูหน้าเว็บ</a>
+      <a href="#" class="nav-link-custom" onclick="logout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="content-with-sidebar">
+    <div class="admin-topbar">
+      <h5 class="mb-0"><i class="fas fa-list text-gold"></i> จัดการรายการบริจาค</h5>
+    </div>
+    <div class="admin-content">
+      <!-- Filter Card -->
+      <div class="glass-card mb-4">
+        <form id="filter-form" class="row g-3">
+          <div class="col-md-3">
+            <label>สถานะ</label>
+            <select class="form-select-dark" id="filter-status">
+              <option value="">ทั้งหมด</option>
+              <option value="pending_review">รอตรวจสอบ</option>
+              <option value="verified">ยืนยันแล้ว</option>
+              <option value="cash">เงินสด</option>
+              <option value="waiting_slip">รอสลิป</option>
+              <option value="cancel">ยกเลิก</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label>ช่องทาง</label>
+            <select class="form-select-dark" id="filter-channel">
+              <option value="">ทั้งหมด</option>
+              <option value="transfer">โอนเงิน</option>
+              <option value="cash">เงินสด</option>
+              <option value="check">เช็ค</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label>วันที่บริจาค</label>
+            <div class="d-flex gap-2">
+              <input type="date" class="form-control-dark" id="filter-start-date">
+              <span class="align-self-center">ถึง</span>
+              <input type="date" class="form-control-dark" id="filter-end-date">
+            </div>
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn-gold w-100"><i class="fas fa-filter"></i> กรองข้อมูล</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Donations Table Card -->
+      <div class="glass-card">
+        <div class="table-responsive">
+          <table class="table-dark-custom">
+            <thead>
+              <tr>
+                <th>ผู้บริจาค</th>
+                <th>จำนวนเงิน</th>
+                <th>ช่องทาง</th>
+                <th>สถานะ</th>
+                <th>วันที่เวลา</th>
+                <th>ผู้ตรวจสอบ</th>
+                <th class="text-center">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="donations-table-body">
+              <tr><td colspan="7" class="text-center" style="color:var(--color-text-muted)">กำลังโหลดข้อมูล...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="pagination" class="pagination-custom"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="modal fade modal-dark" id="detailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-info-circle text-gold"></i> รายละเอียดการบริจาค</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="detail-modal-body">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/utils.js"></script>
+  <script>const API_BASE = window.location.origin + '/api';</script>
+  <script src="/js/auth.js"></script>
+  <script>
+    let currentPage = 1;
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!checkAuth()) return;
+      const user = getUser();
+      if (user && user.role === 'admin') {
+        document.querySelector('.admin-only-title').style.display = 'block';
+        document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
+      }
+      loadDonations();
+
+      document.getElementById('filter-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        currentPage = 1;
+        loadDonations();
+      });
+    });
+
+    async function loadDonations() {
+      const status = document.getElementById('filter-status').value;
+      const channel = document.getElementById('filter-channel').value;
+      const startDate = document.getElementById('filter-start-date').value;
+      const endDate = document.getElementById('filter-end-date').value;
+
+      let query = `?page=${currentPage}&limit=15`;
+      if (status) query += `&status=${status}`;
+      if (channel) query += `&channel=${channel}`;
+      if (startDate) query += `&startDate=${startDate}`;
+      if (endDate) query += `&endDate=${endDate}`;
+
+      try {
+        const token = getToken();
+        const res = await fetch(`${API_BASE}/donations${query}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await res.json();
+        if (result.success) {
+          renderTable(result.data);
+          renderPagination(result.pagination);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function renderTable(donations) {
+      const body = document.getElementById('donations-table-body');
+      if (!donations.length) {
+        body.innerHTML = '<tr><td colspan="7" class="text-center" style="color:var(--color-text-muted)">ไม่พบข้อมูล</td></tr>';
+        return;
+      }
+      body.innerHTML = donations.map(d => `
+        <tr>
+          <td><span class="fw-semibold">${d.donorName}</span><br><small class="text-muted">${d.village || '-'}, ${d.subDistrict || '-'}</small></td>
+          <td class="text-gold font-en fw-bold">${formatCurrency(d.amount)}</td>
+          <td>${getChannelBadge(d.channel)}</td>
+          <td>${getStatusBadge(d.status)}</td>
+          <td class="font-en">${formatDate(d.createdAt)} ${formatTime(d.createdAt)}</td>
+          <td>${d.verifiedBy ? d.verifiedBy.fullName : '-'}</td>
+          <td class="text-center">
+            <div class="d-flex gap-1 justify-content-center">
+              <button class="btn-glass btn-icon btn-sm" onclick="viewDetails('${d._id}')"><i class="fas fa-eye"></i></button>
+              ${d.status === 'pending_review' || d.status === 'waiting_slip' ? 
+                `<button class="btn-success-soft btn-icon btn-sm" onclick="verifyDonation('${d._id}')" title="อนุมัติ"><i class="fas fa-check"></i></button>` : ''
+              }
+              ${d.status !== 'cancel' ? 
+                `<button class="btn-danger-soft btn-icon btn-sm" onclick="cancelDonation('${d._id}')" title="ยกเลิก"><i class="fas fa-times"></i></button>` : ''
+              }
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderPagination(p) {
+      const pag = document.getElementById('pagination');
+      if (p.pages <= 1) { pag.innerHTML = ''; return; }
+      let html = '';
+      for (let i = 1; i <= p.pages; i++) {
+        html += `<button class="page-btn ${i === p.page ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+      }
+      pag.innerHTML = html;
+    }
+
+    function changePage(page) {
+      currentPage = page;
+      loadDonations();
+    }
+
+    async function viewDetails(id) {
+      try {
+        const token = getToken();
+        const res = await fetch(`${API_BASE}/donations/${id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await res.json();
+        if (result.success) {
+          const d = result.data;
+          const body = document.getElementById('detail-modal-body');
+          body.innerHTML = `
+            <div class="row">
+              <div class="col-md-6">
+                <p><strong>ชื่อผู้บริจาค:</strong> ${d.donorName}</p>
+                <p><strong>จำนวนเงิน:</strong> <span class="text-gold font-en fw-bold">${formatCurrency(d.amount)} บาท</span></p>
+                <p><strong>ช่องทาง:</strong> ${getChannelBadge(d.channel)}</p>
+                <p><strong>สถานะ:</strong> ${getStatusBadge(d.status)}</p>
+                <p><strong>ประเภทผู้บริจาค:</strong> ${d.category}</p>
+                <p><strong>ที่อยู่:</strong> หมู่บ้าน ${d.village || '-'} ตำบล ${d.subDistrict || '-'}</p>
+                <p><strong>เวลาบันทึก:</strong> ${formatDate(d.createdAt)} ${formatTime(d.createdAt)}</p>
+                <p><strong>หมายเหตุ:</strong> ${d.note || '-'}</p>
+              </div>
+              <div class="col-md-6 text-center">
+                <p><strong>หลักฐานการโอนเงิน (สลิป):</strong></p>
+                ${d.slipImage ? 
+                  `<img src="${d.slipImage}" class="img-fluid rounded" style="max-height: 350px; border: 1px solid var(--color-border);" />` : 
+                  `<div class="py-5 text-muted"><i class="fas fa-image fa-3x mb-2"></i><br>ไม่มีรูปภาพสลิป</div>`
+                }
+              </div>
+            </div>
+          `;
+          const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+          modal.show();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function verifyDonation(id) {
+      if (!confirm('ยืนยันความถูกต้องของรายการบริจาคนี้หรือไม่?')) return;
+      try {
+        const token = getToken();
+        const res = await fetch(`${API_BASE}/donations/${id}/verify`, {
+          method: 'PUT',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await res.json();
+        if (result.success) {
+          loadDonations();
+        }
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function cancelDonation(id) {
+      if (!confirm('ต้องการยกเลิกรายการบริจาคนี้ใช่หรือไม่?')) return;
+      try {
+        const token = getToken();
+        const res = await fetch(`${API_BASE}/donations/${id}/cancel`, {
+          method: 'PUT',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await res.json();
+        if (result.success) {
+          loadDonations();
+        }
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+  </script>
+</body>
+</html>

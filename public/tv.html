@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TV Mode — ระบบแจ้งยอดบริจาค BOK2569</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link href="/css/main.css" rel="stylesheet">
+  <link href="/css/tv.css" rel="stylesheet">
+</head>
+<body class="tv-body">
+  <div class="tv-container">
+    <!-- LEFT -->
+    <div class="tv-left">
+      <div class="tv-header">
+        <img src="/img/logo_standard.png" style="height: 60px; width: 60px; object-fit: contain; margin-right: 15px;">
+        <div>
+          <div class="tv-school" id="tv-school">โรงเรียนบ้านบกหนองทันน้ำ</div>
+          <div class="tv-project" id="tv-project">ผ้าป่าสามัคคีเพื่อการศึกษา ปี 2569</div>
+        </div>
+      </div>
+      <div class="tv-total-section">
+        <div class="tv-total-label">ยอดบริจาครวม</div>
+        <div class="tv-total-amount font-en animate-glow" id="tv-total">0.00</div>
+        <div class="tv-total-unit">บาท</div>
+      </div>
+      <div class="tv-clock">
+        <div class="tv-time font-en" id="tv-clock">00:00:00</div>
+        <div class="tv-date" id="tv-date"></div>
+      </div>
+    </div>
+    <!-- RIGHT -->
+    <div class="tv-right">
+      <div class="tv-right-header">
+        <span class="live-dot"></span>
+        <span>ผู้บริจาคล่าสุด</span>
+      </div>
+      <div class="tv-donation-list" id="tv-donation-list">
+        <div class="empty-state"><i class="fas fa-hand-holding-heart"></i><p>ยังไม่มีรายการ</p></div>
+      </div>
+    </div>
+  </div>
+  <!-- TV Popup -->
+  <div id="popup-container"></div>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/popup.js"></script>
+  <script src="/js/tts.js"></script>
+  <script>
+    const API_BASE = window.location.origin + '/api';
+    async function fetchAPI(endpoint) {
+      const res = await fetch(API_BASE + endpoint);
+      return await res.json();
+    }
+    // Clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('tv-clock').textContent = now.toLocaleTimeString('th-TH');
+      document.getElementById('tv-date').textContent = now.toLocaleDateString('th-TH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Load data
+    async function loadTV() {
+      try {
+        const [stats, donations] = await Promise.all([
+          fetchAPI('/dashboard/summary'),
+          fetchAPI('/donations/latest')
+        ]);
+        if (stats.data) {
+          document.getElementById('tv-total').textContent = formatCurrency(stats.data.totalAmount);
+        }
+        if (donations.data && donations.data.length > 0) {
+          const list = document.getElementById('tv-donation-list');
+          list.innerHTML = donations.data.map((d, i) => `
+            <div class="tv-donation-item" style="animation-delay: ${i * 0.05}s">
+              <div class="tv-donor-name">${d.donorName}</div>
+              <div class="tv-donor-amount font-en">${formatCurrency(d.amount)} <small>บาท</small></div>
+            </div>
+          `).join('');
+        }
+      } catch(e) { console.log('TV load skipped'); }
+    }
+    loadTV();
+
+    // Socket
+    const socket = io(window.location.origin);
+    socket.on('new_donation', (donation) => {
+      loadTV();
+      showDonationPopup(donation);
+      speakDonation(donation);
+    });
+    socket.on('donation_verified', () => loadTV());
+
+    // ESC to go back
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') window.location.href = '/';
+    });
+    // Auto fullscreen
+    document.addEventListener('click', () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+    }, { once: true });
+  </script>
+</body>
+</html>
