@@ -124,12 +124,13 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><i class="fas fa-check-circle text-success"></i> อนุมัติและบันทึกข้อมูลสลิป</h5>
+          <h5 class="modal-title" id="verify-modal-title"><i class="fas fa-check-circle text-success"></i> อนุมัติและบันทึกข้อมูลสลิป</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <form id="verify-form">
             <input type="hidden" id="verify-id">
+            <input type="hidden" id="verify-mode" value="verify">
             <div class="row">
               <!-- Left side: Form -->
               <div class="col-md-6">
@@ -164,7 +165,7 @@
             </div>
             <div class="modal-footer px-0 pb-0 mt-3 border-top-0">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
-              <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> บันทึกและอนุมัติยอด</button>
+              <button type="submit" class="btn btn-success" id="verify-submit-btn"><i class="fas fa-check"></i> บันทึกและอนุมัติยอด</button>
             </div>
           </form>
         </div>
@@ -229,21 +230,23 @@
               throw new Error(updateResult.message || 'บันทึกข้อมูลล้มเหลว');
             }
             
-            // 2. Approve/Verify donation
-            const verifyRes = await fetch(`${API_BASE}/donations/${id}/verify`, {
-              method: 'PUT',
-              headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const verifyResult = await verifyRes.json();
-            
-            if (verifyResult.success) {
-              const modalEl = document.getElementById('verifyModal');
-              const modal = bootstrap.Modal.getInstance(modalEl);
-              if (modal) modal.hide();
-              loadDonations();
-            } else {
-              throw new Error(verifyResult.message || 'อนุมัติรายการล้มเหลว');
+            // 2. Approve/Verify donation (เฉพาะโหมดอนุมัติ)
+            const mode = document.getElementById('verify-mode').value;
+            if (mode === 'verify') {
+              const verifyRes = await fetch(`${API_BASE}/donations/${id}/verify`, {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${token}` }
+              });
+              const verifyResult = await verifyRes.json();
+              if (!verifyResult.success) {
+                throw new Error(verifyResult.message || 'อนุมัติรายการล้มเหลว');
+              }
             }
+            
+            const modalEl = document.getElementById('verifyModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+            loadDonations();
           } catch (err) {
             alert(err.message);
           }
@@ -294,9 +297,12 @@
           <td>${d.verifiedBy ? d.verifiedBy.fullName : '-'}</td>
           <td class="text-center">
             <div class="d-flex gap-1 justify-content-center">
-              <button class="btn-glass btn-icon btn-sm" onclick="viewDetails('${d._id}')"><i class="fas fa-eye"></i></button>
+              <button class="btn-glass btn-icon btn-sm" onclick="viewDetails('${d._id}')" title="ดูรายละเอียด"><i class="fas fa-eye"></i></button>
+              ${d.status !== 'cancel' ? 
+                `<button class="btn-primary-soft btn-icon btn-sm" onclick="editDonation('${d._id}')" title="แก้ไขข้อมูล"><i class="fas fa-edit"></i></button>` : ''
+              }
               ${d.status === 'pending_review' || d.status === 'waiting_slip' ? 
-                `<button class="btn-success-soft btn-icon btn-sm" onclick="verifyDonation('${d._id}')" title="อนุมัติ"><i class="fas fa-check"></i></button>` : ''
+                `<button class="btn-success-soft btn-icon btn-sm" onclick="verifyDonation('${d._id}')" title="อนุมัติและบันทึกสลิป"><i class="fas fa-check"></i></button>` : ''
               }
               ${d.status !== 'cancel' ? 
                 `<button class="btn-danger-soft btn-icon btn-sm" onclick="cancelDonation('${d._id}')" title="ยกเลิก"><i class="fas fa-times"></i></button>` : ''
@@ -372,9 +378,14 @@
           const d = result.data;
           
           document.getElementById('verify-id').value = d._id;
+          document.getElementById('verify-mode').value = 'verify';
           document.getElementById('verify-name').value = d.donorName === 'รอตรวจสอบ (LINE)' ? '' : d.donorName;
           document.getElementById('verify-amount').value = d.amount === 1 ? '' : d.amount;
           document.getElementById('verify-note').value = d.note || '';
+          
+          // ตั้งค่าหัวข้อและปุ่มสำหรับโหมดอนุมัติ
+          document.getElementById('verify-modal-title').innerHTML = '<i class="fas fa-check-circle text-success"></i> อนุมัติและบันทึกข้อมูลสลิป';
+          document.getElementById('verify-submit-btn').innerHTML = '<i class="fas fa-check"></i> บันทึกและอนุมัติยอด';
           
           // กำหนดวันที่และเวลา
           const txDate = d.createdAt ? new Date(d.createdAt) : new Date();
@@ -400,6 +411,53 @@
       } catch (err) {
         console.error(err);
         alert('ไม่สามารถโหลดข้อมูลสลิปได้');
+      }
+    }
+
+    async function editDonation(id) {
+      try {
+        const token = getToken();
+        const res = await fetch(`${API_BASE}/donations/${id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await res.json();
+        if (result.success) {
+          const d = result.data;
+          
+          document.getElementById('verify-id').value = d._id;
+          document.getElementById('verify-mode').value = 'edit';
+          document.getElementById('verify-name').value = d.donorName;
+          document.getElementById('verify-amount').value = d.amount;
+          document.getElementById('verify-note').value = d.note || '';
+          
+          // ตั้งค่าหัวข้อและปุ่มสำหรับโหมดแก้ไขข้อมูล
+          document.getElementById('verify-modal-title').innerHTML = '<i class="fas fa-edit text-primary"></i> แก้ไขข้อมูลการบริจาค';
+          document.getElementById('verify-submit-btn').innerHTML = '<i class="fas fa-save"></i> บันทึกข้อมูล';
+          
+          // กำหนดวันที่และเวลา
+          const txDate = d.createdAt ? new Date(d.createdAt) : new Date();
+          const year = txDate.getFullYear();
+          const month = String(txDate.getMonth() + 1).padStart(2, '0');
+          const date = String(txDate.getDate()).padStart(2, '0');
+          const hours = String(txDate.getHours()).padStart(2, '0');
+          const minutes = String(txDate.getMinutes()).padStart(2, '0');
+          
+          document.getElementById('verify-date').value = `${year}-${month}-${date}`;
+          document.getElementById('verify-time').value = `${hours}:${minutes}`;
+          
+          const imgContainer = document.getElementById('verify-image-container');
+          if (d.slipImage) {
+            imgContainer.innerHTML = `<img src="${d.slipImage}" class="img-fluid rounded" style="max-height: 350px; border: 1px solid var(--color-border);" />`;
+          } else {
+            imgContainer.innerHTML = `<div class="py-5 text-muted"><i class="fas fa-image fa-3x mb-2"></i><br>ไม่มีรูปภาพสลิป</div>`;
+          }
+          
+          const modal = new bootstrap.Modal(document.getElementById('verifyModal'));
+          modal.show();
+        }
+      } catch (err) {
+        console.error(err);
+        alert('ไม่สามารถโหลดข้อมูลการบริจาคได้');
       }
     }
 
