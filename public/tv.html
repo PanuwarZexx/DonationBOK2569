@@ -93,7 +93,7 @@
           list.innerHTML = donations.data.map((d, i) => `
             <div class="tv-donation-item" style="animation-delay: ${i * 0.05}s">
               <div class="tv-donor-name">${d.donorName}</div>
-              <div class="tv-donor-amount font-en">${formatCurrency(d.amount)} <small>บาท</small></div>
+              <div class="tv-donation-amount font-en">${formatCurrency(d.amount)} <small>บาท</small></div>
             </div>
           `).join('');
         }
