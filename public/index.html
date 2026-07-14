@@ -89,25 +89,54 @@
         </div>
       </div>
 
+      <!-- QR Code & Bank Account (ย้ายขึ้นมาอยู่ด้านบน) -->
+      <div class="glass-card-gold qr-section animate-slide-in-up" style="animation-delay: 0.25s" id="qr-section">
+        <h5><i class="fas fa-qrcode text-gold"></i> สแกนเพื่อร่วมบริจาค (e-Donation)</h5>
+        <div class="qr-wrapper text-center">
+          <div style="margin: 0 auto 1rem; width: 240px; height: 240px; background: #ffffff; padding: 10px; border-radius: var(--radius-md); box-shadow: var(--glass-shadow); display: inline-flex; align-items: center; justify-content: center;">
+            <img src="/img/promptpay_qr.jpg" id="qr-image" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+          </div>
+
+          <!-- ปุ่มบันทึกรูปภาพ QR Code -->
+          <div style="margin-bottom: 1.2rem;">
+            <a href="/img/promptpay_qr.jpg" download="QR_บริจาค_โรงเรียนบ้านบกหนองทันน้ำ.jpg" class="btn-save-qr" id="btn-save-qr">
+              <i class="fas fa-download"></i> บันทึกรูป QR Code
+            </a>
+          </div>
+
+          <!-- ข้อมูลบัญชีธนาคาร -->
+          <div class="bank-account-info">
+            <div class="bank-account-header">
+              <i class="fas fa-university"></i> ข้อมูลบัญชีธนาคารสำหรับโอนเงิน
+            </div>
+            <div class="bank-detail-row">
+              <span class="bank-detail-label">ธนาคาร:</span>
+              <span class="bank-detail-value">ธ.ก.ส. (ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร)</span>
+            </div>
+            <div class="bank-detail-row">
+              <span class="bank-detail-label">ชื่อบัญชี:</span>
+              <span class="bank-detail-value">รายได้สถานศึกษาโรงเรียนบ้านบกหนองทันน้ำ</span>
+            </div>
+            <div class="bank-detail-row">
+              <span class="bank-detail-label">เลขที่บัญชี:</span>
+              <span class="bank-detail-value font-en" id="account-number" style="font-size: 1.15rem; font-weight: 700; letter-spacing: 1px;">013-502-378-668</span>
+              <button class="btn-copy-account" id="btn-copy-account" title="คัดลอกเลขบัญชี" onclick="copyAccountNumber()">
+                <i class="fas fa-copy"></i> คัดลอก
+              </button>
+            </div>
+          </div>
+
+          <div class="qr-info" style="margin-top: 1rem;">
+            <p class="qr-promptpay" style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: 0;">สแกนคิวอาร์โค้ดด้านบน หรือโอนเงินเข้าบัญชีธนาคารเพื่อร่วมบริจาค e-Donation ลดหย่อนภาษีอัตโนมัติ</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Chart -->
       <div class="glass-card chart-section animate-slide-in-up" style="animation-delay: 0.3s">
         <h5><i class="fas fa-chart-bar text-gold"></i> กราฟยอดบริจาครายวัน</h5>
         <div class="chart-container">
           <canvas id="donation-chart"></canvas>
-        </div>
-      </div>
-
-      <!-- QR PromptPay -->
-      <div class="glass-card-gold qr-section animate-slide-in-up" style="animation-delay: 0.4s" id="qr-section">
-        <h5><i class="fas fa-qrcode text-gold"></i> สแกนเพื่อร่วมบริจาค (e-Donation)</h5>
-        <div class="qr-wrapper text-center">
-          <div style="margin: 0 auto 1rem; width: 220px; height: 220px; background: #ffffff; padding: 10px; border-radius: var(--radius-md); box-shadow: var(--glass-shadow); display: inline-flex; align-items: center; justify-content: center;">
-            <img src="/img/promptpay_qr.jpg" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-          </div>
-          <div class="qr-info">
-            <p class="qr-bank" id="qr-bank-info" style="font-weight: 600; color: var(--color-text-primary); margin-bottom: 0.25rem;">โรงเรียนบ้านบกหนองทันน้ำ</p>
-            <p class="qr-promptpay" style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: 0;">สแกนคิวอาร์โค้ดด้านบนเพื่อร่วมบริจาค e-Donation ลดหย่อนภาษีอัตโนมัติ</p>
-          </div>
         </div>
       </div>
 
@@ -162,5 +191,37 @@
   <script src="/js/tts.js"></script>
   <script src="/js/donationChart.js"></script>
   <script src="/js/pwa.js"></script>
+  <script>
+    // ฟังก์ชันคัดลอกเลขบัญชี
+    function copyAccountNumber() {
+      const accountNum = '013502378668';
+      navigator.clipboard.writeText(accountNum).then(() => {
+        const btn = document.getElementById('btn-copy-account');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> คัดลอกแล้ว!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          btn.classList.remove('copied');
+        }, 2000);
+      }).catch(() => {
+        // Fallback สำหรับเบราว์เซอร์เก่า
+        const textArea = document.createElement('textarea');
+        textArea.value = accountNum;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        const btn = document.getElementById('btn-copy-account');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> คัดลอกแล้ว!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+  </script>
 </body>
 </html>
