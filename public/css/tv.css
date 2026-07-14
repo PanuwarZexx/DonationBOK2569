@@ -461,7 +461,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   border-radius: 12px;
   padding: 0.8vw 0.4vw;
   position: relative;
@@ -478,6 +478,7 @@
 .tv-podium-gold .tv-podium-crown {
   font-size: 1.8vw;
   animation: pulse 2s infinite;
+  flex-shrink: 0;
 }
 
 .tv-podium-silver {
@@ -488,6 +489,7 @@
 }
 .tv-podium-silver .tv-podium-crown {
   font-size: 1.4vw;
+  flex-shrink: 0;
 }
 
 .tv-podium-bronze {
@@ -498,10 +500,12 @@
 }
 .tv-podium-bronze .tv-podium-crown {
   font-size: 1.2vw;
+  flex-shrink: 0;
 }
 
 .tv-podium-crown {
   margin-bottom: 0.3vw;
+  flex-shrink: 0;
 }
 
 .tv-podium-name {
@@ -514,6 +518,7 @@
   text-overflow: ellipsis;
   max-width: 90%;
   margin-bottom: 0.3vw;
+  flex-shrink: 0;
 }
 
 .tv-podium-amount {
@@ -521,11 +526,13 @@
   font-weight: 800;
   font-size: 1.25vw;
   color: var(--color-gold-dark);
+  flex-shrink: 0;
 }
 
 .tv-podium-amount small {
   font-size: 0.8vw;
   font-weight: 400;
   color: var(--color-text-secondary);
+  flex-shrink: 0;
 }
 

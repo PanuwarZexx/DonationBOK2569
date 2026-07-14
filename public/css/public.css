@@ -461,8 +461,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   border-radius: var(--radius-lg);
-  padding: 1rem 0.5rem;
+  padding: 0.8rem 0.5rem;
   position: relative;
   transition: all 0.3s ease;
   box-shadow: var(--glass-shadow);
@@ -472,41 +473,44 @@
 .podium-gold {
   background: rgba(255, 255, 255, 0.04);
   border: 1.5px solid rgba(255, 255, 255, 0.12);
-  height: 180px;
+  min-height: 180px;
   order: 2; /* Center */
   box-shadow: var(--glass-shadow);
 }
 .podium-gold .podium-crown {
   font-size: 2rem;
   color: var(--color-gold);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
   animation: pulse 2s infinite;
+  flex-shrink: 0;
 }
 
 /* 2nd Place (Silver) */
 .podium-silver {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  height: 150px;
+  min-height: 155px;
   order: 1; /* Left */
 }
 .podium-silver .podium-crown {
   font-size: 1.6rem;
   color: #c0c0c0;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
+  flex-shrink: 0;
 }
 
 /* 3rd Place (Bronze) */
 .podium-bronze {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  height: 130px;
+  min-height: 135px;
   order: 3; /* Right */
 }
 .podium-bronze .podium-crown {
   font-size: 1.4rem;
   color: #cd7f32;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
+  flex-shrink: 0;
 }
 
 .podium-name {
@@ -519,6 +523,7 @@
   text-overflow: ellipsis;
   max-width: 100%;
   margin-bottom: 0.25rem;
+  flex-shrink: 0;
 }
 
 .podium-amount {
@@ -526,12 +531,14 @@
   font-weight: 800;
   font-size: 1.1rem;
   color: var(--color-gold);
+  flex-shrink: 0;
 }
 
 .podium-amount small {
   font-size: 0.75rem;
   font-weight: 400;
   color: var(--color-gold-dark);
+  flex-shrink: 0;
 }
 
 /* Responsive adjustments */
