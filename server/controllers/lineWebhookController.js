@@ -38,6 +38,16 @@ exports.handleWebhook = async (req, res) => {
         if (event.message.type === 'image') {
           const messageId = event.message.id;
 
+          // ===== ตรวจสอบสลิปซ้ำด้วย LINE Message ID (แม่นยำ 100%) =====
+          const existingByMsgId = await Donation.findOne({ lineMessageId: messageId });
+          if (existingByMsgId) {
+            await replyMessage(event.replyToken, {
+              type: 'text',
+              text: '🚨 สลิปรายการซ้ำ!\n\nสลิปรูปนี้เคยถูกส่งเข้าระบบแล้วครับ กรุณาตรวจสอบหรือส่งสลิปใบใหม่ครับ'
+            });
+            continue;
+          }
+
           // ดาวน์โหลดข้อมูลรูปภาพจาก LINE API
           let imageBuffer;
           try {
@@ -60,18 +70,8 @@ exports.handleWebhook = async (req, res) => {
             continue;
           }
 
-          // บันทึกไฟล์รูปภาพลงโฟลเดอร์ของเซิร์ฟเวอร์
-          const uploadDir = path.join(__dirname, '..', '..', 'public', 'uploads');
-          if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-          }
-          const filename = `line_${messageId}.jpg`;
-          const localPath = path.join(uploadDir, filename);
-          fs.writeFileSync(localPath, imageBuffer);
-
+          // แปลงรูปภาพเป็น Base64 เก็บใน MongoDB ถาวร (หรือใช้ Cloudinary ถ้าตั้งค่าไว้)
           let imageUrl = '';
-
-          // อัปโหลดเข้า Cloudinary (หากตั้งค่าไว้)
           if (process.env.CLOUDINARY_CLOUD_NAME) {
             try {
               const cloudinary = require('../config/cloudinary');
@@ -90,29 +90,27 @@ exports.handleWebhook = async (req, res) => {
               console.error('Cloudinary upload error, fallback to Base64:', err.message);
             }
           }
-
-          // หากไม่ได้ใช้ Cloudinary หรืออัปโหลดไม่สำเร็จ ให้แปลงรูปภาพเป็น Base64 แล้วเก็บใน MongoDB โดยตรง (เก็บถาวร ไม่มีวันหายเมื่อเซิร์ฟเวอร์รีสตาร์ท)
           if (!imageUrl) {
             imageUrl = `data:image/jpeg;base64,${imageBuffer.toString('base64')}`;
           }
 
-          // ประมวลผลภาพด้วย OCR
+          // ประมวลผลภาพด้วย OCR (ถ้าตั้งค่า Google Vision API Key)
           const ocrResult = await ocrService.processSlipImage(imageUrl);
 
           if (ocrResult.success && ocrResult.data && ocrResult.data.amount) {
             const ocrData = ocrResult.data;
 
-            // ตรวจสอบสลิปซ้ำ
+            // ตรวจสอบสลิปซ้ำเพิ่มเติมด้วย reference / ยอดเงิน+เวลา
             const verifyResult = await slipVerifier.verifySlip(ocrData);
             if (verifyResult.isDuplicate) {
               await replyMessage(event.replyToken, {
                 type: 'text',
-                text: `🚨 ขออภัยครับ! สลิปโอนเงินนี้เคยถูกส่งเข้าระบบแล้ว หรือพบยอดซ้ำในช่วงเวลาใกล้เคียงกัน กรุณาตรวจสอบสลิปอีกครั้งครับ`
+                text: '🚨 สลิปรายการซ้ำ!\n\nพบข้อมูลสลิปโอนเงินนี้ในระบบแล้วครับ (ยอดเงินและเวลาตรงกัน) กรุณาตรวจสอบหรือส่งสลิปใบอื่นครับ'
               });
               continue;
             }
 
-            // บันทึกการบริจาค (อนุมัติอัตโนมัติหากสแกนสำเร็จ)
+            // บันทึกการบริจาค (อนุมัติอัตโนมัติเมื่อ OCR อ่านสำเร็จ)
             const donation = await Donation.create({
               donorName: ocrData.senderName || 'ผู้บริจาคผ่าน LINE',
               amount: ocrData.amount,
@@ -121,39 +119,36 @@ exports.handleWebhook = async (req, res) => {
               bankName: ocrData.bankName || '',
               reference: ocrData.reference || '',
               slipImage: imageUrl,
-              ocrData: {
-                ...ocrData,
-                rawText: ocrResult.rawText
-              },
+              ocrData: { ...ocrData, rawText: ocrResult.rawText },
               lineUserId: lineUserId,
+              lineMessageId: messageId,
               note: 'ส่งสลิปผ่าน LINE (ตรวจสอบอัตโนมัติด้วย OCR)'
             });
 
-            // ส่งข้อมูลแจ้งเตือนและสถิติผ่าน Socket
             emitNewDonation(donation);
             await updateStatsSocket();
 
-            // ตอบกลับผู้ใช้ใน LINE
             await replyMessage(event.replyToken, {
               type: 'text',
-              text: `ได้รับข้อมูลสลิปโอนเงินเรียบร้อยแล้วครับ! 🙏\n\n👤 ผู้โอน: ${donation.donorName}\n💵 ยอดเงิน: ${donation.amount.toLocaleString()} บาท\n🏦 ธนาคาร: ${donation.bankName}\n\nขออนุโมทนาบุญด้วยครับ ✨`
+              text: `✅ บันทึกข้อมูลเรียบร้อยแล้ว!\n\n👤 ผู้โอน: ${donation.donorName}\n💵 ยอดเงิน: ${donation.amount.toLocaleString()} บาท\n🏦 ธนาคาร: ${donation.bankName || '-'}\n\nขออนุโมทนาบุญด้วยครับ 🙏✨`
             });
 
           } else {
-            // กรณี OCR ค้นหายอดเงินไม่เจอ หรือไม่ได้ตั้งค่า Vision API Key
+            // กรณี OCR อ่านไม่ได้ หรือยังไม่ได้ตั้งค่า API Key — บันทึกรอแอดมินตรวจสอบ
             const donation = await Donation.create({
               donorName: 'รอตรวจสอบ (LINE)',
-              amount: 1, // ขั้นต่ำตาม Schema ของฐานข้อมูล
+              amount: 1,
               channel: 'transfer',
               status: 'pending_review',
               slipImage: imageUrl,
               lineUserId: lineUserId,
+              lineMessageId: messageId,
               note: 'ส่งสลิปผ่าน LINE - รอตรวจสอบข้อมูลแมนนวล'
             });
 
             await replyMessage(event.replyToken, {
               type: 'text',
-              text: `ได้รับรูปภาพสลิปเรียบร้อยแล้วครับ! 🙏\n\n⚠️ ระบบไม่สามารถดึงยอดเงินอัตโนมัติได้ เจ้าหน้าที่จะทำการตรวจสอบและอัปเดตยอดเงินให้ท่านในระบบหลังบ้าน ขออภัยในความไม่สะดวกครับ`
+              text: '✅ บันทึกข้อมูลเรียบร้อยแล้ว!\n\nระบบได้รับสลิปโอนเงินของท่านแล้วครับ เจ้าหน้าที่จะตรวจสอบและอัปเดตยอดให้ในระบบ\n\nขออนุโมทนาบุญด้วยครับ 🙏✨'
             });
           }
 

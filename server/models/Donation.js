@@ -40,6 +40,7 @@ const donationSchema = new mongoose.Schema({
   note: { type: String, default: '' },
   // LINE
   lineUserId: { type: String, default: '' },
+  lineMessageId: { type: String, default: '' },
   // ตรวจสอบ
   verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   verifiedAt: { type: Date }
@@ -51,5 +52,6 @@ donationSchema.index({ createdAt: -1 });
 donationSchema.index({ donorName: 'text' });
 donationSchema.index({ status: 1 });
 donationSchema.index({ channel: 1 });
+donationSchema.index({ lineMessageId: 1 }, { unique: true, sparse: true });
 
 module.exports = mongoose.model('Donation', donationSchema);
