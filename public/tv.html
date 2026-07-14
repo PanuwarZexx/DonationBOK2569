@@ -185,6 +185,14 @@
       popup.offsetHeight;
       popup.classList.add('show');
 
+      let popupCleared = false;
+      
+      // ตั้งเวลาสำรองปิดการ์ด (Failsafe) ภายใน 10 วินาที หาก TTS บล็อกหรือค้าง เพื่อให้คิวทำงานต่อไปได้
+      const ttsFallback = setTimeout(() => {
+        console.log("TTS Failsafe triggered to prevent stuck queue");
+        closeTVPopup();
+      }, 10000);
+
       // 3. เริ่มพูดสังเคราะห์เสียง (TTS)
       if ('speechSynthesis' in window && soundEnabled) {
         // ล้างเสียงพูดเก่าๆ ที่ค้างอยู่ (ถ้ามี)
@@ -204,11 +212,15 @@
 
         // เมื่อพูดเสร็จ ให้รอ 2 วินาทีเพื่อให้เห็นชื่อคนโอนชัดๆ แล้วทำการปิดป๊อปอัพและไปชื่อถัดไป
         utterance.onend = () => {
-          setTimeout(closeTVPopup, 2000);
+          if (!popupCleared) {
+            setTimeout(closeTVPopup, 2000);
+          }
         };
 
         utterance.onerror = () => {
-          setTimeout(closeTVPopup, 3000);
+          if (!popupCleared) {
+            setTimeout(closeTVPopup, 3000);
+          }
         };
 
         window.speechSynthesis.speak(utterance);
@@ -218,6 +230,10 @@
       }
 
       function closeTVPopup() {
+        if (popupCleared) return;
+        popupCleared = true;
+        clearTimeout(ttsFallback); // ล้างตัวตั้งเวลาสำรอง
+        
         popup.classList.remove('show');
         setTimeout(() => {
           popup.remove();

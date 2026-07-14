@@ -49,6 +49,12 @@ function toggleSound() {
   soundEnabled = !soundEnabled;
   localStorage.setItem('soundEnabled', soundEnabled);
   updateSoundButton();
+  if (soundEnabled) {
+    playChime();
+    setTimeout(() => {
+      speak("ระบบเสียงประกาศเปิดใช้งานแล้ว");
+    }, 600);
+  }
 }
 
 function updateSoundButton() {
