@@ -69,7 +69,7 @@ exports.handleWebhook = async (req, res) => {
           const localPath = path.join(uploadDir, filename);
           fs.writeFileSync(localPath, imageBuffer);
 
-          let imageUrl = `${process.env.FRONTEND_URL || 'https://donationbok2569.onrender.com'}/uploads/${filename}`;
+          let imageUrl = '';
 
           // อัปโหลดเข้า Cloudinary (หากตั้งค่าไว้)
           if (process.env.CLOUDINARY_CLOUD_NAME) {
@@ -87,8 +87,13 @@ exports.handleWebhook = async (req, res) => {
               });
               imageUrl = uploadResult.secure_url;
             } catch (err) {
-              console.error('Cloudinary upload error, fallback to local URL:', err.message);
+              console.error('Cloudinary upload error, fallback to Base64:', err.message);
             }
+          }
+
+          // หากไม่ได้ใช้ Cloudinary หรืออัปโหลดไม่สำเร็จ ให้แปลงรูปภาพเป็น Base64 แล้วเก็บใน MongoDB โดยตรง (เก็บถาวร ไม่มีวันหายเมื่อเซิร์ฟเวอร์รีสตาร์ท)
+          if (!imageUrl) {
+            imageUrl = `data:image/jpeg;base64,${imageBuffer.toString('base64')}`;
           }
 
           // ประมวลผลภาพด้วย OCR

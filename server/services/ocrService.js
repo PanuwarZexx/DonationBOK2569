@@ -1,16 +1,26 @@
 const axios = require('axios');
 
 // OCR Service — อ่านข้อมูลจากสลิปด้วย Google Cloud Vision API
-const processSlipImage = async (imageUrl) => {
+const processSlipImage = async (imageInput) => {
   try {
     if (!process.env.GOOGLE_CLOUD_API_KEY) {
       return { success: false, message: 'ยังไม่ได้ตั้งค่า Google Cloud API Key' };
     }
+    
+    let imagePayload = {};
+    if (imageInput.startsWith('data:')) {
+      // ดึงเฉพาะส่วนของ base64 content ออกมา
+      const base64Content = imageInput.split(',')[1];
+      imagePayload = { content: base64Content };
+    } else {
+      imagePayload = { source: { imageUri: imageInput } };
+    }
+
     const response = await axios.post(
       `https://vision.googleapis.com/v1/images:annotate?key=${process.env.GOOGLE_CLOUD_API_KEY}`,
       {
         requests: [{
-          image: { source: { imageUri: imageUrl } },
+          image: imagePayload,
           features: [{ type: 'TEXT_DETECTION', maxResults: 1 }]
         }]
       }
