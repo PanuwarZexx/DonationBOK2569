@@ -38,16 +38,6 @@ exports.handleWebhook = async (req, res) => {
         if (event.message.type === 'image') {
           const messageId = event.message.id;
 
-          // ===== ตรวจสอบสลิปซ้ำด้วย LINE Message ID (แม่นยำ 100%) =====
-          const existingByMsgId = await Donation.findOne({ lineMessageId: messageId });
-          if (existingByMsgId) {
-            await replyMessage(event.replyToken, {
-              type: 'text',
-              text: '🚨 สลิปรายการซ้ำ!\n\nสลิปรูปนี้เคยถูกส่งเข้าระบบแล้วครับ กรุณาตรวจสอบหรือส่งสลิปใบใหม่ครับ'
-            });
-            continue;
-          }
-
           // ดาวน์โหลดข้อมูลรูปภาพจาก LINE API
           let imageBuffer;
           try {
@@ -94,6 +84,27 @@ exports.handleWebhook = async (req, res) => {
             imageUrl = `data:image/jpeg;base64,${imageBuffer.toString('base64')}`;
           }
 
+          // ===== ตรวจสอบสลิปซ้ำด้วย LINE Message ID (ย้ายมาตรงนี้เพื่อให้บันทึกรูปภาพได้) =====
+          const existingByMsgId = await Donation.findOne({ lineMessageId: messageId });
+          if (existingByMsgId) {
+            await Donation.create({
+              donorName: 'รอตรวจสอบ (สลิปซ้ำ)',
+              amount: 1,
+              channel: 'transfer',
+              status: 'cancel',
+              slipImage: imageUrl,
+              lineUserId: lineUserId,
+              lineMessageId: messageId,
+              note: '🚨 [สลิปซ้ำ] รูปภาพนี้เคยถูกส่งเข้าระบบแล้ว (เช็คจาก LINE Message ID)'
+            });
+
+            await replyMessage(event.replyToken, {
+              type: 'text',
+              text: '🚨 สลิปรายการซ้ำ!\n\nสลิปรูปนี้เคยถูกส่งเข้าระบบแล้วครับ กรุณาตรวจสอบหรือส่งสลิปใบใหม่ครับ'
+            });
+            continue;
+          }
+
           // ประมวลผลภาพด้วย OCR (ถ้าตั้งค่า Google Vision API Key)
           const ocrResult = await ocrService.processSlipImage(imageUrl);
 
@@ -103,6 +114,20 @@ exports.handleWebhook = async (req, res) => {
             // ตรวจสอบสลิปซ้ำเพิ่มเติมด้วย reference / ยอดเงิน+เวลา
             const verifyResult = await slipVerifier.verifySlip(ocrData);
             if (verifyResult.isDuplicate) {
+              await Donation.create({
+                donorName: ocrData.senderName || 'รอตรวจสอบ (สลิปซ้ำ)',
+                amount: ocrData.amount || 1,
+                channel: 'transfer',
+                status: 'cancel',
+                bankName: ocrData.bankName || '',
+                reference: ocrData.reference || '',
+                slipImage: imageUrl,
+                ocrData: { ...ocrData, rawText: ocrResult.rawText },
+                lineUserId: lineUserId,
+                lineMessageId: messageId,
+                note: `🚨 [สลิปซ้ำ] ${verifyResult.message}`
+              });
+
               await replyMessage(event.replyToken, {
                 type: 'text',
                 text: '🚨 สลิปรายการซ้ำ!\n\nพบข้อมูลสลิปโอนเงินนี้ในระบบแล้วครับ (ยอดเงินและเวลาตรงกัน) กรุณาตรวจสอบหรือส่งสลิปใบอื่นครับ'

@@ -289,7 +289,12 @@
       }
       body.innerHTML = donations.map(d => `
         <tr>
-          <td><span class="fw-semibold">${d.donorName}</span><br><small class="text-muted">${d.village || '-'}, ${d.subDistrict || '-'}</small></td>
+          <td>
+            <span class="fw-semibold">${d.donorName}</span>
+            ${d.note && d.note.includes('สลิปซ้ำ') ? '<span class="badge bg-danger text-white ms-1" style="font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px;"><i class="fas fa-exclamation-triangle"></i> สลิปซ้ำ</span>' : ''}
+            <br>
+            <small class="text-muted">${d.village || '-'}, ${d.subDistrict || '-'}</small>
+          </td>
           <td class="text-gold font-en fw-bold">${formatCurrency(d.amount)}</td>
           <td>${getChannelBadge(d.channel)}</td>
           <td>${getStatusBadge(d.status)}</td>
