@@ -10,7 +10,7 @@
   overflow: hidden;
   display: grid;
   grid-template-columns: 55% 45%;
-  background: linear-gradient(135deg, #050510 0%, #0a0a1a 40%, #12122e 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f4f6f8 100%);
   position: relative;
 }
 
@@ -41,7 +41,7 @@
   position: absolute;
   width: 3px;
   height: 3px;
-  background: rgba(255, 215, 0, 0.3);
+  background: rgba(198, 149, 0, 0.15);
   border-radius: 50%;
   animation: tvFloat linear infinite;
 }
@@ -84,7 +84,7 @@
   justify-content: center;
   padding: 3vw;
   z-index: 1;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .tv-school-logo {
@@ -96,23 +96,23 @@
   align-items: center;
   justify-content: center;
   font-size: 2.5rem;
-  color: #1a1a2e;
+  color: #fff;
   margin-bottom: 1.5vw;
-  box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+  box-shadow: 0 4px 20px rgba(198, 149, 0, 0.35);
 }
 
 .tv-school-name {
   font-size: 2.5vw;
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: #1a1d20;
   text-align: center;
   margin-bottom: 0.5vw;
 }
 
 .tv-project-name {
   font-size: 1.5vw;
-  color: var(--color-gold);
-  font-weight: 500;
+  color: var(--color-gold-dark);
+  font-weight: 600;
   text-align: center;
   margin-bottom: 3vw;
 }
@@ -123,17 +123,15 @@
   font-size: 12vw; /* Increased from 8vw for giant display */
   font-weight: 900;
   color: var(--color-gold);
-  text-shadow:
-    0 0 40px rgba(255, 215, 0, 0.6),
-    0 0 80px rgba(255, 215, 0, 0.4);
-  animation: glow 3s ease-in-out infinite;
+  text-shadow: 0 4px 20px rgba(198, 149, 0, 0.2);
+  animation: none;
   line-height: 0.9;
   letter-spacing: -0.04em;
 }
 
 .tv-total-label {
   font-size: 1.8vw;
-  color: var(--color-text-secondary);
+  color: #495057;
   margin-bottom: 1vw;
   font-weight: 500;
 }
@@ -154,7 +152,7 @@
 .tv-progress .progress-bar-custom {
   height: 40px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .tv-progress .progress-bar-fill {
@@ -179,7 +177,7 @@
 }
 
 .tv-progress-text .tv-goal {
-  color: var(--color-text-muted);
+  color: #868e96;
   font-family: var(--font-en);
 }
 
@@ -193,13 +191,13 @@
   font-family: var(--font-en);
   font-size: 2.5vw;
   font-weight: 300;
-  color: var(--color-text-secondary);
+  color: #495057;
   letter-spacing: 0.05em;
 }
 
 .tv-date {
   font-size: 1.2vw;
-  color: var(--color-text-muted);
+  color: #868e96;
   margin-top: 0.3vw;
 }
 
@@ -215,7 +213,7 @@
 .tv-list-title {
   font-size: 2vw;
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: #1a1d20;
   margin-bottom: 1.5vw;
   display: flex;
   align-items: center;
@@ -241,16 +239,16 @@
   gap: 1.2vw;
   padding: 1vw 1.2vw;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   margin-bottom: 0.6vw;
   animation: slideInRight 0.6s ease forwards;
   transition: all var(--transition-base);
 }
 
 .tv-donation-item.new-item {
-  background: rgba(255, 215, 0, 0.06);
-  border-color: rgba(255, 215, 0, 0.3);
+  background: rgba(198, 149, 0, 0.06);
+  border-color: rgba(198, 149, 0, 0.25);
   animation: slideInRight 0.6s ease forwards, borderGlow 2s ease-in-out 3;
 }
 
@@ -287,7 +285,7 @@
 .tv-donation-item .tv-donor-name {
   font-size: 1.3vw;
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: #1a1d20;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -295,7 +293,7 @@
 
 .tv-donation-item .tv-donor-time {
   font-size: 0.9vw;
-  color: var(--color-text-muted);
+  color: #868e96;
   font-family: var(--font-en);
   margin-top: 0.2vw;
 }
@@ -304,7 +302,7 @@
   font-family: var(--font-en);
   font-size: 1.8vw;
   font-weight: 700;
-  color: var(--color-gold);
+  color: var(--color-gold-dark);
   text-align: right;
   white-space: nowrap;
   flex-shrink: 0;
@@ -313,7 +311,7 @@
 .tv-donation-item .tv-donation-amount small {
   font-size: 1vw;
   font-weight: 400;
-  color: var(--color-gold-dark);
+  color: #495057;
 }
 
 /* Auto-scroll animation */
@@ -348,16 +346,15 @@
 }
 
 .tv-popup-card {
-  background: rgba(10, 10, 26, 0.95);
+  background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(30px);
   border: 2px solid var(--color-gold);
   border-radius: 24px;
   padding: 3vw 4vw;
   text-align: center;
   box-shadow:
-    0 0 40px rgba(255, 215, 0, 0.3),
-    0 0 80px rgba(255, 215, 0, 0.15),
-    0 25px 60px rgba(0, 0, 0, 0.5);
+    0 0 40px rgba(198, 149, 0, 0.15),
+    0 25px 60px rgba(0, 0, 0, 0.12);
   min-width: 30vw;
 }
 
@@ -370,14 +367,14 @@
 .tv-popup-title {
   font-size: 2vw;
   font-weight: 700;
-  color: var(--color-gold);
+  color: var(--color-gold-dark);
   margin-bottom: 0.5vw;
 }
 
 .tv-popup-donor {
   font-size: 2.5vw;
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: #1a1d20;
   margin-bottom: 0.5vw;
 }
 
@@ -386,7 +383,7 @@
   font-size: 4vw;
   font-weight: 700;
   color: var(--color-gold);
-  text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+  text-shadow: 0 4px 15px rgba(198, 149, 0, 0.25);
   margin-bottom: 0.5vw;
 }
 
@@ -416,34 +413,36 @@
   bottom: 1vw;
   right: 1.5vw;
   font-size: 0.8vw;
-  color: rgba(255, 255, 255, 0.15);
+  color: rgba(0, 0, 0, 0.35);
   z-index: 10;
 }
 
 .tv-keyboard-hints kbd {
   padding: 0.2em 0.5em;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 4px;
   font-family: var(--font-en);
   font-size: 0.75vw;
   margin: 0 0.2em;
+  background: #fff;
+  color: #333;
 }
 
 /* ===== TV Top 3 Donors ===== */
 .tv-top3-container {
   width: 90%;
   margin-top: 1.5vw;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.01);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 16px;
   padding: 1.2vw 1.5vw;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
 }
 
 .tv-top3-title {
   font-size: 1.6vw;
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: #1a1d20;
   margin-bottom: 1.2vw;
   text-align: center;
 }
@@ -470,11 +469,11 @@
 }
 
 .tv-podium-gold {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1.5px solid rgba(198, 149, 0, 0.25);
   height: 100%;
   order: 2; /* Center */
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 15px rgba(198, 149, 0, 0.1);
 }
 .tv-podium-gold .tv-podium-crown {
   font-size: 2.2vw;
@@ -482,8 +481,8 @@
 }
 
 .tv-podium-silver {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   height: 82%;
   order: 1; /* Left */
 }
@@ -492,8 +491,8 @@
 }
 
 .tv-podium-bronze {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   height: 70%;
   order: 3; /* Right */
 }
@@ -508,7 +507,7 @@
 .tv-podium-name {
   font-weight: 700;
   font-size: 1.3vw;
-  color: var(--color-text-primary);
+  color: #1a1d20;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
@@ -521,7 +520,7 @@
   font-family: var(--font-en);
   font-weight: 800;
   font-size: 1.5vw;
-  color: var(--color-gold);
+  color: var(--color-gold-dark);
 }
 
 .tv-podium-amount small {
