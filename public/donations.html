@@ -85,6 +85,7 @@
           <table class="table-dark-custom">
             <thead>
               <tr>
+                <th class="text-center" style="width: 70px;">ลำดับ</th>
                 <th>ผู้บริจาค</th>
                 <th>จำนวนเงิน</th>
                 <th>ช่องทาง</th>
@@ -95,7 +96,7 @@
               </tr>
             </thead>
             <tbody id="donations-table-body">
-              <tr><td colspan="7" class="text-center" style="color:var(--color-text-muted)">กำลังโหลดข้อมูล...</td></tr>
+              <tr><td colspan="8" class="text-center" style="color:var(--color-text-muted)">กำลังโหลดข้อมูล...</td></tr>
             </tbody>
           </table>
         </div>
@@ -284,11 +285,12 @@
     function renderTable(donations) {
       const body = document.getElementById('donations-table-body');
       if (!donations.length) {
-        body.innerHTML = '<tr><td colspan="7" class="text-center" style="color:var(--color-text-muted)">ไม่พบข้อมูล</td></tr>';
+        body.innerHTML = '<tr><td colspan="8" class="text-center" style="color:var(--color-text-muted)">ไม่พบข้อมูล</td></tr>';
         return;
       }
-      body.innerHTML = donations.map(d => `
+      body.innerHTML = donations.map((d, index) => `
         <tr>
+          <td class="text-center font-en fw-semibold text-secondary-custom">${(currentPage - 1) * 15 + (index + 1)}</td>
           <td>
             <span class="fw-semibold">${d.donorName}</span>
             ${d.note && d.note.includes('สลิปซ้ำ') ? '<span class="badge bg-danger text-white ms-1" style="font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px;"><i class="fas fa-exclamation-triangle"></i> สลิปซ้ำ</span>' : ''}
