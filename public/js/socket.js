@@ -42,6 +42,9 @@ function initSocket() {
     loadStats();
     loadLatestDonations();
     if (typeof loadTopDonors === 'function') loadTopDonors();
+    if (typeof showDonationPopup === 'function') showDonationPopup(donation);
+    if (typeof speakDonation === 'function') speakDonation(donation);
+    showToast(`🙏 ${donation.donorName} บริจาค ${formatCurrency(donation.amount)} บาท`, 'success');
   });
 
   // สถิติอัปเดต

@@ -248,7 +248,10 @@
       loadTV();
       queueTVAlert(donation); // ใส่คิวเด้งป๊อปอัพเสียงพูดกลางจอทีละยอดตามลำดับ
     });
-    socket.on('donation_verified', () => loadTV());
+    socket.on('donation_verified', (donation) => {
+      loadTV();
+      queueTVAlert(donation); // ใส่คิวเด้งป๊อปอัพเสียงพูดกลางจอทีละยอดตามลำดับ
+    });
 
     // ESC to go back
     document.addEventListener('keydown', (e) => {
