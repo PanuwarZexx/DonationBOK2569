@@ -11,6 +11,11 @@
 </head>
 <body class="tv-body">
   <div class="tv-layout">
+    <!-- Sound Toggle Button -->
+    <button class="tv-sound-toggle active" id="sound-toggle" title="เปิด/ปิดเสียงประกาศ">
+      <i class="fas fa-volume-up" id="sound-icon"></i>
+    </button>
+
     <!-- LEFT -->
     <div class="tv-left">
       <div class="tv-header">
@@ -129,12 +134,103 @@
     }
     loadTV();
 
+    // TV Mode Alert Queue (คิวสำหรับแสดงป๊อปอัพกลางจอและพูดประกาศสลิป)
+    const tvQueue = [];
+    let isProcessingTVQueue = false;
+
+    function queueTVAlert(donation) {
+      tvQueue.push(donation);
+      if (!isProcessingTVQueue) {
+        processTVQueue();
+      }
+    }
+
+    function processTVQueue() {
+      if (tvQueue.length === 0) {
+        isProcessingTVQueue = false;
+        return;
+      }
+      isProcessingTVQueue = true;
+      const donation = tvQueue.shift();
+      showTVPopupAndSpeak(donation, () => {
+        // เมื่อเสียงประกาศพูดจบและปิดป๊อปอัพแล้ว ค่อยดึงยอดถัดไปในคิวขึ้นมาแสดงผลต่อ
+        processTVQueue();
+      });
+    }
+
+    function showTVPopupAndSpeak(donation, callback) {
+      // 1. เล่นเสียง Chime นำทางก่อนพูด
+      if (typeof playChime === 'function') playChime();
+
+      // 2. เด้งป๊อปอัพการ์ดขนาดใหญ่กลางจอภาพ
+      const container = document.getElementById('popup-container');
+      if (!container) {
+        if (callback) callback();
+        return;
+      }
+
+      const popup = document.createElement('div');
+      popup.id = 'tv-popup';
+      popup.innerHTML = `
+        <div class="tv-popup-card">
+          <div class="tv-popup-emoji">🎉</div>
+          <div class="tv-popup-title">ร่วมอนุโมทนาบุญ</div>
+          <div class="tv-popup-donor">${donation.donorName}</div>
+          <div class="tv-popup-amount">${formatCurrency(donation.amount)} <small>บาท</small></div>
+        </div>
+      `;
+      container.appendChild(popup);
+
+      // บังคับให้บราวเซอร์เรนเดอร์สไตล์เริ่มต้นก่อน แอดคลาสอนิเมชันเด้งขึ้นมา
+      popup.offsetHeight;
+      popup.classList.add('show');
+
+      // 3. เริ่มพูดสังเคราะห์เสียง (TTS)
+      if ('speechSynthesis' in window && soundEnabled) {
+        // ล้างเสียงพูดเก่าๆ ที่ค้างอยู่ (ถ้ามี)
+        window.speechSynthesis.cancel();
+        
+        const text = `ขออนุโมทนาบุญ คุณ ${donation.donorName} ร่วมบริจาค เป็นจำนวนเงิน ${donation.amount} บาท ขอขอบพระคุณครับ`;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'th-TH';
+        utterance.rate = 0.85; // ปรับให้พูดจังหวะเป็นธรรมชาติและชัดเจน
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+
+        // เลือกเสียงผู้พูดภาษาไทย
+        const voices = window.speechSynthesis.getVoices();
+        const thaiVoice = voices.find(v => v.lang.startsWith('th'));
+        if (thaiVoice) utterance.voice = thaiVoice;
+
+        // เมื่อพูดเสร็จ ให้รอ 2 วินาทีเพื่อให้เห็นชื่อคนโอนชัดๆ แล้วทำการปิดป๊อปอัพและไปชื่อถัดไป
+        utterance.onend = () => {
+          setTimeout(closeTVPopup, 2000);
+        };
+
+        utterance.onerror = () => {
+          setTimeout(closeTVPopup, 3000);
+        };
+
+        window.speechSynthesis.speak(utterance);
+      } else {
+        // หากไม่รองรับระบบเสียง หรือผู้ใช้ปิดเสียง ให้แสดงค้างไว้ 5 วินาทีแล้วทำการปิดป๊อปอัพ
+        setTimeout(closeTVPopup, 5000);
+      }
+
+      function closeTVPopup() {
+        popup.classList.remove('show');
+        setTimeout(() => {
+          popup.remove();
+          if (callback) callback();
+        }, 500); // รอเฟดเอาท์อนิเมชันให้จบ
+      }
+    }
+
     // Socket
     const socket = io(window.location.origin);
     socket.on('new_donation', (donation) => {
       loadTV();
-      showDonationPopup(donation);
-      speakDonation(donation);
+      queueTVAlert(donation); // ใส่คิวเด้งป๊อปอัพเสียงพูดกลางจอทีละยอดตามลำดับ
     });
     socket.on('donation_verified', () => loadTV());
 
