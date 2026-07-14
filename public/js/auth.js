@@ -49,4 +49,39 @@ document.addEventListener('DOMContentLoaded', () => {
       loginBtn.innerHTML = `<i class="fas fa-tachometer-alt"></i> Dashboard`;
     }
   }
+
+  // Inject Sidebar Toggle for mobile layout
+  const topbar = document.querySelector('.admin-topbar');
+  if (topbar && !document.getElementById('sidebar-toggle-btn')) {
+    const leftContainer = document.createElement('div');
+    leftContainer.className = 'd-flex align-items-center gap-3';
+    const title = topbar.querySelector('h5');
+    if (title) {
+      const toggleBtn = document.createElement('button');
+      toggleBtn.className = 'sidebar-toggle';
+      toggleBtn.id = 'sidebar-toggle-btn';
+      toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+      
+      title.parentNode.insertBefore(leftContainer, title);
+      leftContainer.appendChild(toggleBtn);
+      leftContainer.appendChild(title);
+      
+      const sidebar = document.getElementById('sidebar');
+      if (sidebar) {
+        toggleBtn.addEventListener('click', () => {
+          sidebar.classList.add('open');
+          let overlay = document.querySelector('.sidebar-overlay');
+          if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'sidebar-overlay show';
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', () => {
+              sidebar.classList.remove('open');
+              overlay.remove();
+            });
+          }
+        });
+      }
+    }
+  }
 });
