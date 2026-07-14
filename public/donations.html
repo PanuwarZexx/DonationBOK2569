@@ -119,6 +119,59 @@
     </div>
   </div>
 
+  <!-- Verify Modal (อนุมัติและแก้ไขข้อมูล) -->
+  <div class="modal fade modal-dark" id="verifyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-check-circle text-success"></i> อนุมัติและบันทึกข้อมูลสลิป</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="verify-form">
+            <input type="hidden" id="verify-id">
+            <div class="row">
+              <!-- Left side: Form -->
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="verify-name" class="form-label">ชื่อผู้บริจาค</label>
+                  <input type="text" class="form-control" id="verify-name" placeholder="ระบุชื่อผู้บริจาคตามสลิป" required>
+                </div>
+                <div class="mb-3">
+                  <label for="verify-amount" class="form-label">จำนวนเงิน (บาท)</label>
+                  <input type="number" step="any" class="form-control font-en" id="verify-amount" placeholder="ระบุยอดเงินโอน" required>
+                </div>
+                <div class="mb-3">
+                  <label for="verify-date" class="form-label">วันที่โอนเงิน (ตามสลิป)</label>
+                  <input type="date" class="form-control" id="verify-date" required>
+                </div>
+                <div class="mb-3">
+                  <label for="verify-time" class="form-label">เวลาโอนเงิน (ตามสลิป)</label>
+                  <input type="time" class="form-control" id="verify-time" required>
+                </div>
+                <div class="mb-3">
+                  <label for="verify-note" class="form-label">หมายเหตุ</label>
+                  <textarea class="form-control" id="verify-note" rows="2" placeholder="รายละเอียดเพิ่มเติม (ระบุหรือไม่ระบุก็ได้)"></textarea>
+                </div>
+              </div>
+              <!-- Right side: Slip Image -->
+              <div class="col-md-6 text-center">
+                <p class="mb-2"><strong>หลักฐานการโอนเงิน (สลิป)</strong></p>
+                <div id="verify-image-container" style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 10px; background: rgba(255,255,255,0.05); min-height: 250px; display: flex; align-items: center; justify-content: center;">
+                  <!-- Image inserted dynamically -->
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer px-0 pb-0 mt-3 border-top-0">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+              <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> บันทึกและอนุมัติยอด</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="/js/utils.js"></script>
   <script>const API_BASE = window.location.origin + '/api';</script>
@@ -139,6 +192,63 @@
         currentPage = 1;
         loadDonations();
       });
+
+      // Hook verify form submit
+      const verifyForm = document.getElementById('verify-form');
+      if (verifyForm) {
+        verifyForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const id = document.getElementById('verify-id').value;
+          const name = document.getElementById('verify-name').value;
+          const amount = parseFloat(document.getElementById('verify-amount').value);
+          const dateStr = document.getElementById('verify-date').value;
+          const timeStr = document.getElementById('verify-time').value;
+          const note = document.getElementById('verify-note').value;
+          
+          const combinedDateTime = new Date(`${dateStr}T${timeStr}:00`);
+          
+          try {
+            const token = getToken();
+            
+            // 1. Update donation details
+            const updateRes = await fetch(`${API_BASE}/donations/${id}`, {
+              method: 'PUT',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+              },
+              body: JSON.stringify({
+                donorName: name,
+                amount: amount,
+                createdAt: combinedDateTime,
+                note: note
+              })
+            });
+            const updateResult = await updateRes.json();
+            if (!updateResult.success) {
+              throw new Error(updateResult.message || 'บันทึกข้อมูลล้มเหลว');
+            }
+            
+            // 2. Approve/Verify donation
+            const verifyRes = await fetch(`${API_BASE}/donations/${id}/verify`, {
+              method: 'PUT',
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const verifyResult = await verifyRes.json();
+            
+            if (verifyResult.success) {
+              const modalEl = document.getElementById('verifyModal');
+              const modal = bootstrap.Modal.getInstance(modalEl);
+              if (modal) modal.hide();
+              loadDonations();
+            } else {
+              throw new Error(verifyResult.message || 'อนุมัติรายการล้มเหลว');
+            }
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+      }
     });
 
     async function loadDonations() {
@@ -252,19 +362,44 @@
     }
 
     async function verifyDonation(id) {
-      if (!confirm('ยืนยันความถูกต้องของรายการบริจาคนี้หรือไม่?')) return;
       try {
         const token = getToken();
-        const res = await fetch(`${API_BASE}/donations/${id}/verify`, {
-          method: 'PUT',
+        const res = await fetch(`${API_BASE}/donations/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const result = await res.json();
         if (result.success) {
-          loadDonations();
+          const d = result.data;
+          
+          document.getElementById('verify-id').value = d._id;
+          document.getElementById('verify-name').value = d.donorName === 'รอตรวจสอบ (LINE)' ? '' : d.donorName;
+          document.getElementById('verify-amount').value = d.amount === 1 ? '' : d.amount;
+          document.getElementById('verify-note').value = d.note || '';
+          
+          // กำหนดวันที่และเวลา
+          const txDate = d.createdAt ? new Date(d.createdAt) : new Date();
+          const year = txDate.getFullYear();
+          const month = String(txDate.getMonth() + 1).padStart(2, '0');
+          const date = String(txDate.getDate()).padStart(2, '0');
+          const hours = String(txDate.getHours()).padStart(2, '0');
+          const minutes = String(txDate.getMinutes()).padStart(2, '0');
+          
+          document.getElementById('verify-date').value = `${year}-${month}-${date}`;
+          document.getElementById('verify-time').value = `${hours}:${minutes}`;
+          
+          const imgContainer = document.getElementById('verify-image-container');
+          if (d.slipImage) {
+            imgContainer.innerHTML = `<img src="${d.slipImage}" class="img-fluid rounded" style="max-height: 350px; border: 1px solid var(--color-border);" />`;
+          } else {
+            imgContainer.innerHTML = `<div class="py-5 text-muted"><i class="fas fa-image fa-3x mb-2"></i><br>ไม่มีรูปภาพสลิป</div>`;
+          }
+          
+          const modal = new bootstrap.Modal(document.getElementById('verifyModal'));
+          modal.show();
         }
       } catch (err) {
-        alert(err.message);
+        console.error(err);
+        alert('ไม่สามารถโหลดข้อมูลสลิปได้');
       }
     }
 
