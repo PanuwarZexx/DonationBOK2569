@@ -10,7 +10,7 @@
   <link href="/css/tv.css" rel="stylesheet">
 </head>
 <body class="tv-body">
-  <div class="tv-container">
+  <div class="tv-layout">
     <!-- LEFT -->
     <div class="tv-left">
       <div class="tv-header">
@@ -25,6 +25,15 @@
         <div class="tv-total-amount font-en animate-glow" id="tv-total">0.00</div>
         <div class="tv-total-unit">บาท</div>
       </div>
+
+      <!-- Top 3 Donors (ยอดบริจาคสะสมสูงสุด 3 อันดับแรก) -->
+      <div class="tv-top3-container">
+        <div class="tv-top3-title"><i class="fas fa-trophy text-gold"></i> ยอดบริจาคสะสมสูงสุด 3 อันดับแรก</div>
+        <div class="tv-podium-wrapper" id="tv-top3-list">
+          <div class="text-center py-2 text-muted" style="font-size: 1.2vw;">กำลังโหลดข้อมูล...</div>
+        </div>
+      </div>
+
       <div class="tv-clock">
         <div class="tv-time font-en" id="tv-clock">00:00:00</div>
         <div class="tv-date" id="tv-date"></div>
@@ -66,9 +75,10 @@
     // Load data
     async function loadTV() {
       try {
-        const [stats, donations] = await Promise.all([
+        const [stats, donations, top10] = await Promise.all([
           fetchAPI('/dashboard/summary'),
-          fetchAPI('/donations/latest')
+          fetchAPI('/donations/latest'),
+          fetchAPI('/dashboard/top10')
         ]);
         if (stats.data) {
           document.getElementById('tv-total').textContent = formatCurrency(stats.data.totalAmount);
@@ -82,7 +92,40 @@
             </div>
           `).join('');
         }
+        if (top10.data) {
+          renderTVTop3(top10.data);
+        }
       } catch(e) { console.log('TV load skipped'); }
+    }
+
+    function renderTVTop3(topList) {
+      const container = document.getElementById('tv-top3-list');
+      if (!container) return;
+      
+      const top3 = topList.slice(0, 3);
+      while (top3.length < 3) {
+        top3.push({ _id: '-', totalAmount: 0 });
+      }
+      
+      const ranks = [
+        { class: 'tv-podium-gold', crown: '👑', label: 'อันดับ 1' },
+        { class: 'tv-podium-silver', crown: '🥈', label: 'อันดับ 2' },
+        { class: 'tv-podium-bronze', crown: '🥉', label: 'อันดับ 3' }
+      ];
+      
+      container.innerHTML = top3.map((d, index) => {
+        const r = ranks[index];
+        const name = d._id === '-' ? 'ว่าง' : d._id;
+        const amountText = d.totalAmount > 0 ? `${formatCurrency(d.totalAmount)} <small>บาท</small>` : '-';
+        
+        return `
+          <div class="tv-podium-card ${r.class}">
+            <div class="tv-podium-crown">${r.crown}</div>
+            <div class="tv-podium-name">${name}</div>
+            <div class="tv-podium-amount">${amountText}</div>
+          </div>
+        `;
+      }).join('');
     }
     loadTV();
 

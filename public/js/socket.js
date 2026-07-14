@@ -19,6 +19,7 @@ function initSocket() {
     console.log('🆕 New donation:', donation);
     addDonationToTop(donation);
     loadStats(); // รีเฟรชยอดรวม
+    if (typeof loadTopDonors === 'function') loadTopDonors();
     if (typeof showDonationPopup === 'function') showDonationPopup(donation);
     if (typeof speakDonation === 'function') speakDonation(donation);
     showToast(`🙏 ${donation.donorName} บริจาค ${formatCurrency(donation.amount)} บาท`, 'success');
@@ -32,6 +33,7 @@ function initSocket() {
       item.innerHTML = renderDonationItem(donation).replace(/<div[^>]*>/, '').replace(/<\/div>$/, '');
     }
     loadStats();
+    if (typeof loadTopDonors === 'function') loadTopDonors();
   });
 
   // ยืนยันรายการ
@@ -39,6 +41,7 @@ function initSocket() {
     console.log('✅ Donation verified:', donation);
     loadStats();
     loadLatestDonations();
+    if (typeof loadTopDonors === 'function') loadTopDonors();
   });
 
   // สถิติอัปเดต

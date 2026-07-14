@@ -178,9 +178,65 @@ function showToast(message, type = 'info') {
   setTimeout(() => { toast.classList.add('toast-exit'); setTimeout(() => toast.remove(), 300); }, 4000);
 }
 
+// ===== Load Top Donors =====
+async function loadTopDonors() {
+  try {
+    const { data } = await fetchAPI('/dashboard/top10');
+    renderTopDonors(data);
+  } catch (e) {
+    console.log('Top donors load skipped');
+  }
+}
+
+// ===== Render Top Donors =====
+function renderTopDonors(topList) {
+  const container = document.getElementById('top3-list');
+  if (!container) return;
+  
+  if (!topList || topList.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-3 text-muted">
+        <i class="fas fa-medal mb-1"></i>
+        <p class="mb-0" style="font-size: 0.9rem;">ยังไม่มีผู้บริจาคยอดสูงสุด</p>
+      </div>
+    `;
+    return;
+  }
+  
+  // Get top 3
+  const top3 = topList.slice(0, 3);
+  
+  // Fill missing ranks with placeholders if less than 3
+  while (top3.length < 3) {
+    top3.push({ _id: '-', totalAmount: 0 });
+  }
+  
+  // Map ranks to gold, silver, bronze cards
+  const ranks = [
+    { class: 'podium-gold', crown: '👑', label: 'อันดับ 1' },
+    { class: 'podium-silver', crown: '🥈', label: 'อันดับ 2' },
+    { class: 'podium-bronze', crown: '🥉', label: 'อันดับ 3' }
+  ];
+  
+  container.innerHTML = top3.map((d, index) => {
+    const r = ranks[index];
+    const name = d._id === '-' ? 'ว่าง' : d._id;
+    const amountText = d.totalAmount > 0 ? `${formatCurrency(d.totalAmount)} <small>บาท</small>` : '-';
+    
+    return `
+      <div class="podium-card ${r.class}">
+        <div class="podium-crown">${r.crown}</div>
+        <div class="podium-name">${name}</div>
+        <div class="podium-amount">${amountText}</div>
+      </div>
+    `;
+  }).join('');
+}
+
 // ===== Initialize =====
 document.addEventListener('DOMContentLoaded', () => {
   loadPublicSettings();
   loadStats();
   loadLatestDonations();
+  loadTopDonors();
 });

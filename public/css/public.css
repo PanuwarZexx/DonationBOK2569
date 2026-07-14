@@ -444,3 +444,114 @@
 .btn-copy-account.copied {
   background: #28a745;
 }
+
+/* ===== Top 3 Donors Section ===== */
+.top3-podium-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 1rem;
+  padding: 1.5rem 0.5rem;
+  margin: 0 auto;
+  max-width: 480px;
+}
+
+.podium-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: var(--radius-lg);
+  padding: 1rem 0.5rem;
+  position: relative;
+  transition: all 0.3s ease;
+  box-shadow: var(--glass-shadow);
+}
+
+/* 1st Place (Gold) */
+.podium-gold {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 165, 0, 0.05));
+  border: 2px solid rgba(255, 215, 0, 0.5);
+  height: 180px;
+  order: 2; /* Center */
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+}
+.podium-gold .podium-crown {
+  font-size: 2rem;
+  color: var(--color-gold);
+  margin-bottom: 0.5rem;
+  animation: pulse 2s infinite;
+}
+
+/* 2nd Place (Silver) */
+.podium-silver {
+  background: linear-gradient(135deg, rgba(192, 192, 192, 0.12), rgba(128, 128, 128, 0.03));
+  border: 1.5px solid rgba(192, 192, 192, 0.4);
+  height: 150px;
+  order: 1; /* Left */
+}
+.podium-silver .podium-crown {
+  font-size: 1.6rem;
+  color: #c0c0c0;
+  margin-bottom: 0.5rem;
+}
+
+/* 3rd Place (Bronze) */
+.podium-bronze {
+  background: linear-gradient(135deg, rgba(205, 127, 50, 0.1), rgba(139, 69, 19, 0.02));
+  border: 1.5px solid rgba(205, 127, 50, 0.4);
+  height: 130px;
+  order: 3; /* Right */
+}
+.podium-bronze .podium-crown {
+  font-size: 1.4rem;
+  color: #cd7f32;
+  margin-bottom: 0.5rem;
+}
+
+.podium-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  margin-bottom: 0.25rem;
+}
+
+.podium-amount {
+  font-family: var(--font-en);
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--color-gold);
+}
+
+.podium-amount small {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-gold-dark);
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .top3-podium-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .podium-card {
+    height: auto !important;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0.8rem 1.2rem;
+  }
+  .podium-gold { order: 1; }
+  .podium-silver { order: 2; }
+  .podium-bronze { order: 3; }
+  .podium-crown {
+    margin-bottom: 0 !important;
+    margin-right: 0.5rem;
+  }
+}
