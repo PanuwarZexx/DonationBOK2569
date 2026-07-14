@@ -18,16 +18,25 @@ function processPopupQueue() {
   popup.className = 'donation-popup';
   popup.innerHTML = `
     <div class="popup-glow"></div>
-    <div class="popup-content">
-      <div class="popup-emoji">🙏</div>
-      <div class="popup-title">ขออนุโมทนาบุญ</div>
-      <div class="popup-name">${donation.donorName}</div>
-      <div class="popup-label">บริจาค</div>
-      <div class="popup-amount font-en">${formatCurrency(donation.amount)}</div>
-      <div class="popup-unit">บาท</div>
-      <div class="popup-time">${formatTime(donation.createdAt || new Date())}</div>
-      <div class="popup-channel">${donation.channel === 'transfer' ? '💳 โอนเงิน' : donation.channel === 'cash' ? '💵 เงินสด' : '📄 เช็ค'}</div>
+    <div class="popup-header">
+      <div class="popup-emoji">
+        <i class="fas fa-bell popup-bell-ring"></i>
+      </div>
+      <div class="popup-title-section">
+        <div class="popup-label">ร่วมอนุโมทนาบุญ</div>
+        <div class="popup-title">มีรายการบริจาคใหม่เข้ามา</div>
+      </div>
+      <button class="popup-close" onclick="this.parentElement.parentElement.remove()">&times;</button>
     </div>
+    <div class="popup-body">
+      <div class="popup-donor-name">${donation.donorName}</div>
+      <div class="popup-amount">${formatCurrency(donation.amount)} <small>บาท</small></div>
+    </div>
+    <div class="popup-footer">
+      <span class="popup-time">${formatTime(donation.createdAt || new Date())}</span>
+      <span class="popup-channel badge-status badge-verified">${donation.channel === 'transfer' ? '💳 โอนเงิน' : donation.channel === 'cash' ? '💵 เงินสด' : '📄 เช็ค'}</span>
+    </div>
+    <div class="popup-timer"></div>
   `;
 
   container.appendChild(popup);
