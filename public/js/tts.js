@@ -26,7 +26,7 @@ function speak(text, onEndCallback) {
     
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'th-TH';
-    utterance.rate = 0.85; // ปรับจังหวะความเร็วให้นุ่มนวลน่าฟัง
+    utterance.rate = 0.70; // ปรับให้พูดช้าลงตามคำขอเพื่อให้ฟังง่ายและชัดเจนขึ้น
     utterance.pitch = 1.0; // ระดับเสียง 1.0 (ให้ความเป็นวัยรุ่น นุ่มนวล ไม่ดัดทุ้มจนแหบ)
     utterance.volume = 1.0;
 
@@ -55,6 +55,7 @@ function fallbackGoogleTTS(text, onEndCallback) {
   const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=th&client=tw-ob&q=${encodeURIComponent(text)}`;
   
   const audio = new Audio(ttsUrl);
+  audio.playbackRate = 0.80; // ปรับให้เสียงสำรองพูดช้าลงเช่นกันเพื่อความชัดเจน
   audio.volume = 1.0;
   
   audio.onended = onEndCallback;
