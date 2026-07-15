@@ -12,18 +12,56 @@ function speakDonation(donation) {
   }, 800);
 }
 
-function speak(text) {
-  if (!('speechSynthesis' in window)) return;
+function speak(text, onEndCallback) {
+  // ใช้ Google Translate TTS เป็นหลักเพื่อคุณภาพเสียงสูงและรองรับอุปกรณ์สมาร์ททีวีทุกประเภท
+  const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=th&client=tw-ob&q=${encodeURIComponent(text)}`;
+  
+  const audio = new Audio(ttsUrl);
+  audio.volume = 1.0;
+  
+  let callbackCalled = false;
+  const triggerCallback = () => {
+    if (callbackCalled) return;
+    callbackCalled = true;
+    if (onEndCallback) onEndCallback();
+  };
+
+  audio.onended = triggerCallback;
+  audio.onerror = (e) => {
+    console.log("Google TTS error, falling back to SpeechSynthesis", e);
+    fallbackSpeechSynthesis(text, triggerCallback);
+  };
+  
+  audio.play().catch(err => {
+    console.log("Audio play blocked or failed, falling back to SpeechSynthesis:", err);
+    fallbackSpeechSynthesis(text, triggerCallback);
+  });
+}
+
+function fallbackSpeechSynthesis(text, onEndCallback) {
+  if (!('speechSynthesis' in window)) {
+    if (onEndCallback) onEndCallback();
+    return;
+  }
+  
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'th-TH';
-  utterance.rate = 0.9;
+  utterance.rate = 0.85;
   utterance.pitch = 1.0;
   utterance.volume = 1.0;
-  // เลือก voice ภาษาไทย
+  
   const voices = window.speechSynthesis.getVoices();
   const thaiVoice = voices.find(v => v.lang.startsWith('th'));
   if (thaiVoice) utterance.voice = thaiVoice;
+  
+  utterance.onend = () => {
+    if (onEndCallback) onEndCallback();
+  };
+  utterance.onerror = () => {
+    if (onEndCallback) onEndCallback();
+  };
+  
   window.speechSynthesis.speak(utterance);
 }
 

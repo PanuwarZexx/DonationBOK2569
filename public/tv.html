@@ -194,38 +194,16 @@
       }, 10000);
 
       // 3. เริ่มพูดสังเคราะห์เสียง (TTS)
-      if ('speechSynthesis' in window && soundEnabled) {
-        // ล้างเสียงพูดเก่าๆ ที่ค้างอยู่ (ถ้ามี)
-        window.speechSynthesis.cancel();
-        
+      if (soundEnabled && typeof speak === 'function') {
         const text = `ขออนุโมทนาบุญ คุณ ${donation.donorName} ร่วมบริจาค เป็นจำนวนเงิน ${donation.amount} บาท ขอขอบพระคุณครับ`;
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'th-TH';
-        utterance.rate = 0.85; // ปรับให้พูดจังหวะเป็นธรรมชาติและชัดเจน
-        utterance.pitch = 1.0;
-        utterance.volume = 1.0;
-
-        // เลือกเสียงผู้พูดภาษาไทย
-        const voices = window.speechSynthesis.getVoices();
-        const thaiVoice = voices.find(v => v.lang.startsWith('th'));
-        if (thaiVoice) utterance.voice = thaiVoice;
-
-        // เมื่อพูดเสร็จ ให้รอ 2 วินาทีเพื่อให้เห็นชื่อคนโอนชัดๆ แล้วทำการปิดป๊อปอัพและไปชื่อถัดไป
-        utterance.onend = () => {
+        
+        speak(text, () => {
           if (!popupCleared) {
             setTimeout(closeTVPopup, 2000);
           }
-        };
-
-        utterance.onerror = () => {
-          if (!popupCleared) {
-            setTimeout(closeTVPopup, 3000);
-          }
-        };
-
-        window.speechSynthesis.speak(utterance);
+        });
       } else {
-        // หากไม่รองรับระบบเสียง หรือผู้ใช้ปิดเสียง ให้แสดงค้างไว้ 5 วินาทีแล้วทำการปิดป๊อปอัพ
+        // หากผู้ใช้ปิดเสียง ให้แสดงค้างไว้ 5 วินาทีแล้วทำการปิดป๊อปอัพ
         setTimeout(closeTVPopup, 5000);
       }
 
