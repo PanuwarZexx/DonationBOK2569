@@ -43,6 +43,7 @@ app.use('/api/backup', require('./routes/backup'));
 app.use('/api/webhook/line', require('./routes/lineWebhook'));
 app.use('/api/line-webhook', require('./routes/lineWebhook'));
 app.use('/api/upload', require('./routes/upload'));
+app.use('/api/donors', require('./routes/donors'));
 app.use('/api/health', require('./routes/health'));
 
 // ===== SPA Fallback =====

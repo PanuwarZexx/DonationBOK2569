@@ -541,6 +541,39 @@
   flex-shrink: 0;
 }
 
+/* Podium Avatar styles for custom pictures */
+.podium-avatar-wrapper {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  margin-bottom: 0.35rem;
+  flex-shrink: 0;
+}
+
+.podium-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--color-gold);
+  box-shadow: 0 3px 8px rgba(198, 149, 0, 0.15);
+}
+
+.podium-avatar-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  font-size: 0.9rem;
+  background: #ffffff;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 /* Responsive adjustments */
 @media (max-width: 576px) {
   .top3-podium-container {

@@ -88,6 +88,52 @@
               </div>
             </form>
           </div>
+
+          <!-- จัดการรูปถ่ายผู้บริจาคสูงสุด -->
+          <div class="glass-card-gold mt-4">
+            <div class="row g-3">
+              <div class="col-12">
+                <h5><i class="fas fa-image text-gold"></i> จัดการรูปถ่ายผู้บริจาคสูงสุด 3 อันดับแรก</h5>
+                <hr style="border-color:var(--color-border)">
+                <p class="text-muted" style="font-size:0.85rem; margin-bottom: 0.5rem;">
+                  ระบบจะผูกรูปถ่ายเข้ากับ "ชื่อผู้บริจาค" เพื่อนำไปแสดงเป็นรูปประจำตัวบนโพเดียม 3 อันดับแรก ทั้งในหน้าทีวีและหน้าเว็บปกติ (พิมพ์ชื่อให้ตรงเป๊ะ เช่น คุณเจนจิรา)
+                </p>
+              </div>
+              <div class="col-md-6">
+                <label>ชื่อผู้บริจาค (เช่น คุณเจนจิรา)</label>
+                <input type="text" class="form-control-dark" id="donorNameInput" placeholder="ระบุชื่อผู้บริจาคให้ตรงกับยอดโอน">
+              </div>
+              <div class="col-md-6">
+                <label>อัปโหลดรูปถ่ายผู้บริจาค</label>
+                <input type="file" class="form-control-dark" id="donorPhotoFile" accept="image/*">
+              </div>
+              <div class="col-12 mt-3">
+                <button type="button" class="btn-gold" id="btn-save-donor-photo" style="padding: 0.6rem 1.5rem;">
+                  <i class="fas fa-upload"></i> อัปโหลดและบันทึกรูปถ่าย
+                </button>
+              </div>
+
+              <!-- รายการรูปถ่ายปัจจุบัน -->
+              <div class="col-12 mt-4">
+                <h6 class="mb-2"><i class="fas fa-list text-gold"></i> รายการรูปถ่ายผู้บริจาคปัจจุบัน</h6>
+                <div class="table-responsive">
+                  <table class="table table-dark table-hover border-secondary align-middle" style="font-size: 0.9rem;">
+                    <thead>
+                      <tr>
+                        <th>รูปภาพ</th>
+                        <th>ชื่อผู้บริจาค</th>
+                        <th>จัดการ</th>
+                      </tr>
+                    </thead>
+                    <tbody id="donor-photos-list">
+                      <tr><td colspan="3" class="text-center text-muted">กำลังโหลดข้อมูล...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -101,6 +147,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       if (!checkAuth() || !isAdmin()) { window.location.href = '/dashboard.html'; return; }
       loadSettings();
+      loadDonorProfiles();
 
       document.getElementById('settings-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -126,6 +173,54 @@
           } else { alert(result.message); }
         } catch(err) { alert('เกิดข้อผิดพลาด: ' + err.message); }
       });
+
+      document.getElementById('btn-save-donor-photo').addEventListener('click', async () => {
+        const name = document.getElementById('donorNameInput').value.trim();
+        const fileInput = document.getElementById('donorPhotoFile');
+        if (!name) { alert('กรุณาระบุชื่อผู้บริจาค'); return; }
+        if (fileInput.files.length === 0) { alert('กรุณาเลือกไฟล์รูปถ่ายก่อน'); return; }
+
+        const formData = new FormData();
+        formData.append('slip', fileInput.files[0]); // server expects field name 'slip'
+
+        try {
+          const token = getToken();
+          // 1. Uploadรูปภาพไปหลังบ้าน
+          const uploadRes = await fetch(`${API_BASE}/upload`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+          });
+          const uploadResult = await uploadRes.json();
+          if (!uploadResult.success) {
+            alert('อัปโหลดรูปภาพล้มเหลว: ' + uploadResult.message);
+            return;
+          }
+
+          const photoUrl = uploadResult.data.url;
+
+          // 2. ผูกชื่อกับรูปถ่ายในฐานข้อมูล
+          const saveRes = await fetch(`${API_BASE}/donors/profiles`, {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify({ donorName: name, photoUrl })
+          });
+          const saveResult = await saveRes.json();
+          if (saveResult.success) {
+            alert('ผูกรูปภาพผู้บริจาคสำเร็จ!');
+            fileInput.value = '';
+            document.getElementById('donorNameInput').value = '';
+            loadDonorProfiles();
+          } else {
+            alert('บันทึกข้อมูลล้มเหลว: ' + saveResult.message);
+          }
+        } catch (err) {
+          alert('เกิดข้อผิดพลาด: ' + err.message);
+        }
+      });
     });
 
     async function loadSettings() {
@@ -144,6 +239,58 @@
         }
       } catch(err) {
         console.error(err);
+      }
+    }
+
+    async function loadDonorProfiles() {
+      try {
+        const token = getToken();
+        const res = await fetch(`${API_BASE}/donors/profiles`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await res.json();
+        if (result.success) {
+          const list = document.getElementById('donor-photos-list');
+          if (result.data.length === 0) {
+            list.innerHTML = `<tr><td colspan="3" class="text-center text-muted">ยังไม่มีรูปถ่ายผู้บริจาคถูกบันทึก</td></tr>`;
+            return;
+          }
+          list.innerHTML = result.data.map(p => `
+            <tr>
+              <td>
+                <img src="${p.photoUrl}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1px solid var(--color-gold);">
+              </td>
+              <td class="fw-bold text-white">${p.donorName}</td>
+              <td>
+                <button class="btn btn-sm btn-danger" onclick="deleteDonorPhoto('${p._id}')">
+                  <i class="fas fa-trash-alt"></i> ลบ
+                </button>
+              </td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function deleteDonorPhoto(id) {
+      if (!confirm('คุณแน่ใจหรือไม่ที่จะลบรูปถ่ายผู้บริจาครายนี้?')) return;
+      try {
+        const token = getToken();
+        const res = await fetch(`${API_BASE}/donors/profiles/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert('ลบรูปถ่ายผู้บริจาคสำเร็จ!');
+          loadDonorProfiles();
+        } else {
+          alert(result.message);
+        }
+      } catch (err) {
+        alert('เกิดข้อผิดพลาด: ' + err.message);
       }
     }
   </script>

@@ -1,5 +1,6 @@
 const Donation = require('../models/Donation');
 const Setting = require('../models/Setting');
+const DonorProfile = require('../models/DonorProfile');
 const moment = require('moment-timezone');
 
 const tz = 'Asia/Bangkok';
@@ -76,7 +77,21 @@ exports.getTop10 = async (req, res) => {
       { $sort: { totalAmount: -1 } },
       { $limit: 10 }
     ]);
-    res.json({ success: true, data: top10 });
+    
+    // ค้นหารูปภาพโปรไฟล์ผู้บริจาค (DonorProfile) เพื่อผูกรูปถ่ายเข้ากับอันดับ
+    const donorNames = top10.map(d => d._id);
+    const profiles = await DonorProfile.find({ donorName: { $in: donorNames } });
+    const profileMap = {};
+    profiles.forEach(p => {
+      profileMap[p.donorName] = p.photoUrl;
+    });
+
+    const dataWithPhotos = top10.map(d => ({
+      ...d,
+      photoUrl: profileMap[d._id] || null
+    }));
+
+    res.json({ success: true, data: dataWithPhotos });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

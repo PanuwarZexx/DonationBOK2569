@@ -38,4 +38,22 @@ const notifyDuplicateSlip = async (reference) => {
   await sendBroadcast(msg);
 };
 
-module.exports = { sendPushMessage, sendBroadcast, notifyNewDonation, notifyWaitingSlip, notifyDuplicateSlip };
+const replyMessage = async (replyToken, messages) => {
+  try {
+    if (!process.env.LINE_CHANNEL_ACCESS_TOKEN) return;
+    await axios.post('https://api.line.me/v2/bot/message/reply', {
+      replyToken,
+      messages: Array.isArray(messages) ? messages : [{ type: 'text', text: messages }]
+    }, {
+      headers: {
+        Authorization: `Bearer ${process.env.LINE_CHANNEL_ACCESS_TOKEN}`,
+        'Content-Type': 'application/json'
+      }
+    });
+  } catch (error) {
+    console.error('LINE Reply Error:', error.response?.data || error.message);
+  }
+};
+
+module.exports = { sendPushMessage, sendBroadcast, notifyNewDonation, notifyWaitingSlip, notifyDuplicateSlip, replyMessage };
+

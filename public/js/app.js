@@ -223,9 +223,19 @@ function renderTopDonors(topList) {
     const name = d._id === '-' ? 'ว่าง' : d._id;
     const amountText = d.totalAmount > 0 ? `${formatCurrency(d.totalAmount)} <small>บาท</small>` : '-';
     
+    let avatarHTML = `<div class="podium-crown">${r.crown}</div>`;
+    if (d.photoUrl) {
+      avatarHTML = `
+        <div class="podium-avatar-wrapper">
+          <img src="${d.photoUrl}" class="podium-avatar-img" alt="${name}">
+          <span class="podium-avatar-badge">${r.crown}</span>
+        </div>
+      `;
+    }
+    
     return `
       <div class="podium-card ${r.class}">
-        <div class="podium-crown">${r.crown}</div>
+        ${avatarHTML}
         <div class="podium-name">${name}</div>
         <div class="podium-amount">${amountText}</div>
       </div>
