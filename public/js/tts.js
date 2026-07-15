@@ -7,7 +7,7 @@ function speakDonation(donation) {
   playChime();
   // พูดข้อความ
   setTimeout(() => {
-    const text = `ขออนุโมทนาบุญ คุณ${donation.donorName} บริจาค ${donation.amount} บาท`;
+    const text = `ขออนุโมทนาบุญ ${donation.donorName} บริจาค ${donation.amount} บาท`;
     speak(text);
   }, 800);
 }
@@ -17,6 +17,9 @@ function speak(text, onEndCallback) {
   const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=th&client=tw-ob&q=${encodeURIComponent(text)}`;
   
   const audio = new Audio(ttsUrl);
+  // ตั้งค่าลดระดับเสียง (Pitch) เพื่อเปลี่ยนเสียงผู้หญิงของกูเกิลให้มีความทุ้มต่ำเป็นเสียงผู้ชาย
+  audio.preservesPitch = false;
+  audio.playbackRate = 0.85; // ปรับความเร็วลดลงเล็กน้อยเพื่อให้เสียงทุ้มต่ำลง
   audio.volume = 1.0;
   
   let callbackCalled = false;
@@ -48,11 +51,15 @@ function fallbackSpeechSynthesis(text, onEndCallback) {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'th-TH';
   utterance.rate = 0.85;
-  utterance.pitch = 1.0;
+  utterance.pitch = 0.8; // ลดความสูงเสียง (Pitch) สำหรับผู้พูดท้องถิ่นเพื่อให้ทุ้มต่ำแบบผู้ชาย
   utterance.volume = 1.0;
   
   const voices = window.speechSynthesis.getVoices();
-  const thaiVoice = voices.find(v => v.lang.startsWith('th'));
+  // ค้นหาเสียงผู้ชายภาษาไทย (หากเครื่องมีติดตั้งไว้ เช่น Anawat หรือ Male)
+  let thaiVoice = voices.find(v => v.lang.startsWith('th') && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('anawat')));
+  if (!thaiVoice) {
+    thaiVoice = voices.find(v => v.lang.startsWith('th'));
+  }
   if (thaiVoice) utterance.voice = thaiVoice;
   
   utterance.onend = () => {

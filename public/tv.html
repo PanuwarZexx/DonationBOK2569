@@ -195,7 +195,7 @@
 
       // 3. เริ่มพูดสังเคราะห์เสียง (TTS)
       if (soundEnabled && typeof speak === 'function') {
-        const text = `ขออนุโมทนาบุญ คุณ ${donation.donorName} ร่วมบริจาค เป็นจำนวนเงิน ${donation.amount} บาท ขอขอบพระคุณครับ`;
+        const text = `ขออนุโมทนาบุญ ${donation.donorName} ร่วมบริจาค เป็นจำนวนเงิน ${donation.amount} บาท ขอขอบพระคุณครับ`;
         
         speak(text, () => {
           if (!popupCleared) {
