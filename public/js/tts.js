@@ -1,13 +1,28 @@
 // ===== Text-to-Speech เสียงประกาศ =====
 let soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
 
+function cleanNameForSpeech(name) {
+  if (!name) return '';
+  // ลบวงเล็บ (), [], {} ทุกรูปแบบรวมถึงข้อมูลด้านใน เพื่อให้อ่านออกเสียงลื่นไหล ไม่สะดุดอ่านเครื่องหมายวรรคตอน
+  let clean = name.replace(/\([^)]*\)/g, '')
+                  .replace(/\[[^\]]*\]/g, '')
+                  .replace(/\{[^}]*\}/g, '');
+  // แทนที่เครื่องหมายขีด ยิง หรือสแลช ด้วยเว้นวรรค
+  clean = clean.replace(/[-_\/]/g, ' ');
+  // ยุบช่องว่างที่ซ้ำซ้อนให้เหลือช่องว่างเดียว
+  clean = clean.replace(/\s+/g, ' ');
+  return clean.trim();
+}
+
 function speakDonation(donation) {
   if (!soundEnabled) return;
   // เล่นเสียง chime ก่อน
   playChime();
   // พูดข้อความ
   setTimeout(() => {
-    const text = `ขออนุโมทนาบุญ ${donation.donorName} บริจาค ${donation.amount} บาท`;
+    const cleanName = cleanNameForSpeech(donation.donorName);
+    const spokenAmount = Math.round(Number(donation.amount) || 0);
+    const text = `ขออนุโมทนาบุญ ${cleanName} บริจาค ${spokenAmount} บาท`;
     speak(text);
   }, 800);
 }
@@ -26,7 +41,7 @@ function speak(text, onEndCallback) {
     
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'th-TH';
-    utterance.rate = 0.70; // ปรับให้พูดช้าลงตามคำขอเพื่อให้ฟังง่ายและชัดเจนขึ้น
+    utterance.rate = 0.60; // ปรับให้พูดช้าลงและฟังง่ายขึ้น
     utterance.pitch = 1.0; // ระดับเสียง 1.0 (ให้ความเป็นวัยรุ่น นุ่มนวล ไม่ดัดทุ้มจนแหบ)
     utterance.volume = 1.0;
 
@@ -55,7 +70,7 @@ function fallbackGoogleTTS(text, onEndCallback) {
   const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=th&client=tw-ob&q=${encodeURIComponent(text)}`;
   
   const audio = new Audio(ttsUrl);
-  audio.playbackRate = 0.80; // ปรับให้เสียงสำรองพูดช้าลงเช่นกันเพื่อความชัดเจน
+  audio.playbackRate = 0.72; // ปรับให้เสียงสำรองพูดช้าลงเช่นกันเพื่อความชัดเจนและลื่นไหล
   audio.volume = 1.0;
   
   audio.onended = onEndCallback;
