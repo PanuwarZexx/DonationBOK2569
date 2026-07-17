@@ -52,6 +52,6 @@ donationSchema.index({ createdAt: -1 });
 donationSchema.index({ donorName: 'text' });
 donationSchema.index({ status: 1 });
 donationSchema.index({ channel: 1 });
-donationSchema.index({ lineMessageId: 1 }, { unique: true, sparse: true });
+donationSchema.index({ lineMessageId: 1 });
 
 module.exports = mongoose.model('Donation', donationSchema);
